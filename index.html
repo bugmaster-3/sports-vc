@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
@@ -129,13 +129,13 @@
         <section id="heroSection" class="mb-8 animate-fade-in relative group cursor-pointer"></section>
 
         <nav class="flex items-center gap-2 mb-6 overflow-x-auto hide-scrollbar border-b border-gray-200 dark:border-gray-800 pb-2" aria-label="Feed filters">
-            <button class="tab-btn active px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all bg-primary text-white shadow-md" data-target="trending">
+            <button class="tab-btn px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all" data-target="trending">
                 <i data-lucide="flame" class="w-4 h-4 inline-block mr-1"></i> Trending
             </button>
-            <button class="tab-btn px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700" data-target="top">
+            <button class="tab-btn px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all" data-target="top">
                 <i data-lucide="arrow-up-circle" class="w-4 h-4 inline-block mr-1"></i> Top
             </button>
-            <button class="tab-btn px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700" data-target="latest">
+            <button class="tab-btn px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all" data-target="latest">
                 <i data-lucide="clock" class="w-4 h-4 inline-block mr-1"></i> Latest
             </button>
         </nav>
@@ -189,8 +189,8 @@
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-        import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+        import { collection, onSnapshot, doc, runTransaction, collectionGroup, query, where } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
         const ADMIN_EMAIL = 'admin@gameflowcentral.com';
         const state = {
@@ -263,7 +263,7 @@
                 gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
                 osc1.start(ctx.currentTime); osc2.start(ctx.currentTime);
                 osc1.stop(ctx.currentTime + 0.4); osc2.stop(ctx.currentTime + 0.4);
-            } catch (e) { console.warn('Audio play failed:', e); }
+            } catch (e) {}
         }
 
         function showToast(message) {
@@ -300,9 +300,8 @@
             renderAll();
         }
 
-        document.getElementById('signInBtn').addEventListener('click', async () => {
-            const provider = new GoogleAuthProvider();
-            try { await signInWithPopup(auth, provider); } catch (error) { showToast('Sign-in failed'); }
+        document.getElementById('signInBtn').addEventListener('click', () => {
+            window.location.href = 'auth.html';
         });
 
         document.getElementById('signOutBtn').addEventListener('click', async () => { await signOut(auth); });
@@ -321,22 +320,26 @@
 
         onAuthStateChanged(auth, (user) => {
             updateAuthUI(user);
-            if (user) loadUserVotes(user.uid);
-            else { state.userVotes = {}; renderAll(); }
+            if (user) {
+                loadUserVotes(user.uid);
+            } else {
+                state.userVotes = {};
+                renderAll();
+            }
         });
 
         function loadUserVotes(uid) {
-            const votesRef = collection(db, 'posts');
-            onSnapshot(votesRef, (snapshot) => {
+            const votesQuery = query(collectionGroup(db, 'votes'), where('userId', '==', uid));
+            onSnapshot(votesQuery, (snapshot) => {
                 const userVotes = {};
-                snapshot.forEach(doc => {
-                    const postId = doc.id;
-                    const voteDoc = doc.data().votes ? doc.data().votes[uid] : undefined;
-                    if (voteDoc) userVotes[postId] = voteDoc.value;
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const postId = data.postId;
+                    if (postId) userVotes[postId] = data.value;
                 });
                 state.userVotes = userVotes;
                 renderAll();
-            }, { includeMetadataChanges: false });
+            });
         }
 
         function renderAll() {
@@ -379,7 +382,7 @@
                         <div class="flex items-center justify-between mt-auto">
                             <div class="flex items-center gap-2">
                                 <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-bold">${heroPost.authorInitials || 'A'}</div>
-                                <a href="profile.html?u=${heroPost.authorUsername || ''}" class="text-xs font-medium text-gray-700 dark:text-gray-300 hover:underline">u/${heroPost.authorUsername || heroPost.authorName}</a>
+                                <a href="profile.html?u=${heroPost.authorUsername || ''}" class="text-xs font-medium text-gray-700 dark:text-gray-300 hover:underline">${heroPost.authorName}</a>
                                 <span class="text-gray-400 text-xs">•</span>
                                 <time class="text-xs text-gray-500">${heroPost.timeAgo || ''}</time>
                             </div>
@@ -404,9 +407,7 @@
             filteredPosts.forEach((post, index) => {
                 const postId = post.id;
                 const userVote = state.userVotes[postId] || 0;
-                const upvotes = post.upvotes || 0;
-                const downvotes = post.downvotes || 0;
-                const totalVotes = upvotes - downvotes;
+                const totalVotes = (post.upvotes || 0) - (post.downvotes || 0);
                 const formattedVotes = totalVotes > 999 ? (totalVotes/1000).toFixed(1) + 'k' : totalVotes;
                 const formattedComments = post.commentCount > 999 ? (post.commentCount/1000).toFixed(1) + 'k' : post.commentCount;
                 const cardHTML = `
@@ -445,7 +446,7 @@
                         <div class="flex items-center justify-between mt-auto">
                             <div class="flex items-center gap-2">
                                 <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-bold text-gray-700 dark:text-gray-300">${post.authorInitials || '?'}</div>
-                                <a href="profile.html?u=${post.authorUsername || ''}" class="text-xs font-medium text-gray-700 dark:text-gray-300 hover:underline">u/${post.authorUsername || post.authorName}</a>
+                                <a href="profile.html?u=${post.authorUsername || ''}" class="text-xs font-medium text-gray-700 dark:text-gray-300 hover:underline">${post.authorName}</a>
                             </div>
                             <div class="hidden md:flex items-center gap-5 text-gray-500 dark:text-gray-400">
                                 <a href="comments.html?p=${postId}" class="flex items-center gap-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded transition-colors text-xs font-semibold">
@@ -467,25 +468,47 @@
             lucide.createIcons();
         }
 
-        function handleVote(postId, type) {
+        async function handleVote(postId, type) {
             if (!state.currentUser) {
                 window.location.href = 'auth.html';
                 return;
             }
             const userId = state.currentUser.uid;
+            const postRef = doc(db, 'posts', postId);
             const voteRef = doc(db, 'posts', postId, 'votes', userId);
             const val = type === 'up' ? 1 : -1;
             const currentVote = state.userVotes[postId] || 0;
-            if (currentVote === val) {
-                deleteDoc(voteRef).then(() => {
-                    state.userVotes[postId] = 0;
-                    renderFeed();
-                }).catch(() => showToast('Failed to remove vote'));
-            } else {
-                setDoc(voteRef, { value: val, userId: userId, postId: postId }).then(() => {
-                    state.userVotes[postId] = val;
-                    renderFeed();
-                }).catch(() => showToast('Failed to vote'));
+            const newVote = (val === currentVote) ? 0 : val;
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const postSnap = await transaction.get(postRef);
+                    if (!postSnap.exists()) throw "Post not found";
+                    const postData = postSnap.data();
+                    let up = postData.upvotes || 0;
+                    let down = postData.downvotes || 0;
+
+                    const voteSnap = await transaction.get(voteRef);
+                    const oldVal = voteSnap.exists() ? voteSnap.data().value : 0;
+
+                    if (oldVal === 1) up--;
+                    else if (oldVal === -1) down--;
+
+                    if (newVote === 0) {
+                        transaction.delete(voteRef);
+                    } else {
+                        if (newVote === 1) up++;
+                        else if (newVote === -1) down++;
+                        transaction.set(voteRef, { value: newVote, userId, postId });
+                    }
+
+                    transaction.update(postRef, { upvotes: up, downvotes: down });
+                });
+
+                state.userVotes[postId] = newVote;
+                renderFeed();
+            } catch (error) {
+                showToast('Vote failed. Please try again.');
             }
         }
 
@@ -511,18 +534,55 @@
             if (shareBtn) { e.stopPropagation(); handleShare(shareBtn.dataset.title); return; }
         });
 
-        const tabs = document.querySelectorAll('.tab-btn');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', (e) => {
+        function setActiveTabUI(tab) {
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(t => {
+                t.classList.remove('active', 'bg-primary', 'text-white', 'shadow-md');
+                t.classList.add('bg-gray-200', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
+            });
+            const activeBtn = document.querySelector(`.tab-btn[data-target="${tab}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'bg-primary', 'text-white', 'shadow-md');
+                activeBtn.classList.remove('bg-gray-200', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
+            }
+        }
+
+        function getUrlTab() {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab');
+            if (tab && ['trending', 'top', 'latest'].includes(tab)) return tab;
+            return 'trending';
+        }
+
+        function updateUrlTab(tab) {
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tab);
+            window.history.pushState({}, '', url);
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(tabBtn => {
+            tabBtn.addEventListener('click', (e) => {
                 const target = e.currentTarget.getAttribute('data-target');
                 if (state.tab === target) return;
-                tabs.forEach(t => { t.classList.remove('active', 'bg-primary', 'text-white', 'shadow-md'); t.classList.add('bg-gray-200', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300'); });
-                e.currentTarget.classList.add('active', 'bg-primary', 'text-white', 'shadow-md');
-                e.currentTarget.classList.remove('bg-gray-200', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
                 state.tab = target;
+                setActiveTabUI(target);
+                updateUrlTab(target);
                 renderFeed();
             });
         });
+
+        window.addEventListener('popstate', () => {
+            const newTab = getUrlTab();
+            if (newTab !== state.tab) {
+                state.tab = newTab;
+                setActiveTabUI(newTab);
+                renderFeed();
+            }
+        });
+
+        const initialTab = getUrlTab();
+        state.tab = initialTab;
+        setActiveTabUI(initialTab);
 
         const postsRef = collection(db, 'posts');
         onSnapshot(postsRef, (snapshot) => {
