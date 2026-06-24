@@ -129,17 +129,17 @@
                 <button id="themeToggle" aria-label="Toggle dark mode" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-navy-card text-gray-500 dark:text-gray-400 transition-colors">
                     <i data-lucide="sun" id="themeIcon" class="w-5 h-5"></i>
                 </button>
-                <div class="relative">
-                    <button id="profileBtn" aria-label="User profile" class="w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-navy">
-                        <img src="https://ui-avatars.com/api/?name=User&background=0B0F19&color=fff" alt="User Avatar" class="w-full h-full object-cover">
+                <div class="relative" id="authContainer">
+                    <button id="signInBtn" class="hidden px-4 py-1.5 text-sm font-semibold bg-primary text-white rounded-full hover:bg-primaryHover transition-colors">Sign in</button>
+                    <button id="profileBtn" class="hidden w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-navy" aria-label="User profile">
+                        <img id="profilePic" src="https://ui-avatars.com/api/?name=User&background=0B0F19&color=fff" alt="User Avatar" class="w-full h-full object-cover">
                     </button>
                     <div id="profileMenu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-navy-card border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl py-2 opacity-0 pointer-events-none transform scale-95 transition-all origin-top-right z-50">
                         <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-800">
-                            <p class="text-sm font-semibold">Guest User</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Join the community</p>
+                            <p id="profileDisplayName" class="text-sm font-semibold">User</p>
+                            <p id="profileEmail" class="text-xs text-gray-500 dark:text-gray-400"></p>
                         </div>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mt-1">Log in / Sign up</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Settings</a>
+                        <button id="signOutBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mt-1">Sign out</button>
                     </div>
                 </div>
             </div>
@@ -237,52 +237,19 @@
         </div>
     </footer>
     <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
-    <script>
-        const updates = [
-            { id: 'u1', tab: 'trending', category: 'NBA', color: 'bg-orange-500', title: 'LeBron drops 40 in Game 7 thriller against the Celtics', excerpt: 'In a stunning display of longevity, LeBron James secures another legacy-defining win, hitting the game-winner with 1.2 seconds left.', author: 'HoopsInsider', initials: 'HI', time: '2h ago', upvotes: 1420, comments: 342, isBreaking: false },
-            { id: 'u2', tab: 'latest', category: 'Soccer', color: 'bg-green-600', title: 'Transfer bomb: Mbappé to Real Madrid finalized', excerpt: 'The long-awaited saga comes to a close as Madrid officially announces the signing of the French superstar on a 5-year deal. Presentation set for Tuesday.', author: 'FabrizioHere', initials: 'FH', time: '10m ago', upvotes: 4500, comments: 890, isBreaking: true },
-            { id: 'u3', tab: 'top', category: 'NFL', color: 'bg-blue-600', title: 'Chiefs dynasty cemented with 4th Super Bowl ring', excerpt: 'Mahomes and Reid orchestrate a masterful comeback in the 4th quarter. Is this the greatest duo in NFL history?', author: 'GridironGuru', initials: 'GG', time: '1d ago', upvotes: 8900, comments: 1205, isBreaking: false },
-            { id: 'u4', tab: 'latest', category: 'UFC', color: 'bg-red-600', title: 'UFC 300 main event announced by Dana White', excerpt: 'McGregor returns to the octagon to face Chandler in the highly anticipated milestone event. Tickets go on sale next Friday.', author: 'MMA_Junkie', initials: 'MJ', time: '35m ago', upvotes: 892, comments: 210, isBreaking: false },
-            { id: 'u5', tab: 'trending', category: 'Tennis', color: 'bg-yellow-500', title: 'Wimbledon Final: Alcaraz defends title in straight sets', excerpt: 'Carlos Alcaraz puts on a clinic on center court, proving once again he is the undisputed king of the new generation.', author: 'AceServe', initials: 'AS', time: '4h ago', upvotes: 2100, comments: 156, isBreaking: false },
-            { id: 'u6', tab: 'top', category: 'F1', color: 'bg-red-500', title: 'Verstappen clinches 5th World Championship', excerpt: 'A dominant season concludes in Suzuka as Red Bull Racing secures both the Drivers and Constructors championships.', author: 'PitStop', initials: 'PS', time: '2d ago', upvotes: 3200, comments: 430, isBreaking: false },
-            { id: 'u7', tab: 'trending', category: 'MLB', color: 'bg-blue-800', title: 'Ohtani pitches no-hitter, hits two home runs', excerpt: 'Shohei Ohtani does the impossible again, cementing the greatest single-game performance in baseball history.', author: 'DiamondStats', initials: 'DS', time: '5h ago', upvotes: 5600, comments: 780, isBreaking: true },
-            { id: 'u8', tab: 'latest', category: 'Golf', color: 'bg-green-700', title: 'Tiger Woods announces final Masters appearance', excerpt: 'An emotional press conference at Augusta National reveals this year will be the legend\'s final walk up the 18th fairway.', author: 'LinksLife', initials: 'LL', time: '1h ago', upvotes: 3450, comments: 920, isBreaking: true },
-            { id: 'u9', tab: 'trending', category: 'Soccer', color: 'bg-green-600', title: 'Champions League Semi-Finals set: A preview', excerpt: 'City vs Bayern, Real Madrid vs Arsenal. We break down the tactical matchups ahead of next week\'s clashes.', author: 'TacticBoard', initials: 'TB', time: '7h ago', upvotes: 840, comments: 112, isBreaking: false },
-            { id: 'u10', tab: 'top', category: 'Boxing', color: 'bg-slate-800', title: 'Undisputed: Fury vs Usyk ends in split decision', excerpt: 'A controversial scorecard leaves fans divided after a 12-round war in Riyadh. Rematch clauses already activated.', author: 'RingSide', initials: 'RS', time: '3d ago', upvotes: 4100, comments: 2200, isBreaking: false },
-        ];
+    <script type="module">
+        import { db, auth } from './firebase-config.js';
+        import { collection, onSnapshot, doc, setDoc, deleteDoc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
         const state = {
             tab: 'trending',
             theme: localStorage.getItem('gf_theme') || 'dark',
             sound: localStorage.getItem('gf_sound') === 'true',
-            votes: JSON.parse(localStorage.getItem('gf_votes') || '{}')
+            currentUser: null,
+            userVotes: {},
+            posts: []
         };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            applyTheme();
-            updateSoundIcon();
-            renderFeed();
-            bindEvents();
-            lucide.createIcons();
-            const profileBtn = document.getElementById('profileBtn');
-            const profileMenu = document.getElementById('profileMenu');
-            profileBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isHidden = profileMenu.classList.contains('opacity-0');
-                if (isHidden) {
-                    profileMenu.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
-                    profileMenu.classList.add('opacity-100', 'scale-100');
-                } else {
-                    closeProfileMenu();
-                }
-            });
-            document.addEventListener('click', closeProfileMenu);
-
-            function closeProfileMenu() {
-                profileMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
-                profileMenu.classList.remove('opacity-100', 'scale-100');
-            }
-        });
 
         function applyTheme() {
             const html = document.documentElement;
@@ -359,209 +326,6 @@
             }
         }
 
-        function renderFeed() {
-            const container = document.getElementById('feedContainer');
-            container.innerHTML = '';
-            const filteredUpdates = updates.filter(u => u.tab === state.tab);
-            let hasBreaking = false;
-            if (filteredUpdates.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-gray-500 dark:text-gray-400">No updates found for this category.</div>`;
-                return;
-            }
-            filteredUpdates.forEach((update, index) => {
-                if (update.isBreaking) hasBreaking = true;
-                const userVote = state.votes[update.id] || 0;
-                const displayVotes = update.upvotes + userVote;
-                const formattedVotes = displayVotes > 999 ? (displayVotes/1000).toFixed(1) + 'k' : displayVotes;
-                const formattedComments = update.comments > 999 ? (update.comments/1000).toFixed(1) + 'k' : update.comments;
-                const cardHTML = `
-                <article class="bg-white dark:bg-navy-card rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-800 flex flex-col md:flex-row group animate-slide-up" style="animation-delay: ${index * 50}ms">
-                    <div class="order-last md:order-first mt-3 md:mt-0 flex md:flex-col items-center justify-between md:justify-start gap-2 pt-3 md:pt-4 border-t border-gray-100 dark:border-gray-800 md:border-t-0 md:w-16 shrink-0 bg-gray-50/50 dark:bg-gray-900/20 md:rounded-l-xl px-4 md:px-0 pb-3 md:pb-0">
-                        <div class="flex md:flex-col items-center gap-1 md:gap-2">
-                            <button class="vote-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${userVote === 1 ? 'vote-active-up' : 'text-gray-400'}" data-id="${update.id}" data-type="up" aria-label="Upvote">
-                                <i data-lucide="arrow-up" class="w-5 h-5 md:w-6 md:h-6"></i>
-                            </button>
-                            <span class="font-bold text-xs md:text-sm ${userVote === 1 ? 'text-primary' : (userVote === -1 ? 'text-accent' : 'text-gray-700 dark:text-gray-300')}" id="vote-count-${update.id}">${formattedVotes}</span>
-                            <button class="vote-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${userVote === -1 ? 'vote-active-down' : 'text-gray-400'}" data-id="${update.id}" data-type="down" aria-label="Downvote">
-                                <i data-lucide="arrow-down" class="w-5 h-5 md:w-6 md:h-6"></i>
-                            </button>
-                        </div>
-                        <div class="flex md:hidden items-center gap-4 text-gray-500 dark:text-gray-400">
-                            <button class="flex items-center gap-1.5 hover:text-primary transition-colors text-sm font-medium toggle-comment" data-id="${update.id}">
-                                <i data-lucide="message-circle" class="w-4 h-4"></i> ${formattedComments}
-                            </button>
-                            <button class="flex items-center gap-1.5 hover:text-blue-500 transition-colors text-sm font-medium share-btn" data-title="${update.title}">
-                                <i data-lucide="share-2" class="w-4 h-4"></i> Share
-                            </button>
-                        </div>
-                    </div>
-                    <div class="flex-1 p-4 md:py-4 md:pr-6 cursor-pointer">
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <span class="${update.color} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">${update.category}</span>
-                                ${update.isBreaking ? '<span class="flex items-center gap-1 text-red-500 text-xs font-bold uppercase tracking-wider animate-pulse-fast"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div> Breaking</span>' : ''}
-                            </div>
-                            <time class="text-xs text-gray-500 dark:text-gray-400">${update.time}</time>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 leading-snug mb-1 group-hover:text-primary transition-colors">
-                            <a href="#" class="hover:underline focus:outline-none" onclick="event.preventDefault();">${update.title}</a>
-                        </h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
-                            ${update.excerpt}
-                        </p>
-                        <div class="flex items-center justify-between mt-auto">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-bold text-gray-700 dark:text-gray-300">
-                                    ${update.initials}
-                                </div>
-                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300 hover:underline">u/${update.author}</span>
-                            </div>
-                            <div class="hidden md:flex items-center gap-5 text-gray-500 dark:text-gray-400">
-                                <button class="flex items-center gap-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded transition-colors text-xs font-semibold toggle-comment" data-id="${update.id}">
-                                    <i data-lucide="message-circle" class="w-4 h-4"></i> ${formattedComments} Comments
-                                </button>
-                                <button class="flex items-center gap-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded transition-colors text-xs font-semibold share-btn" data-title="${update.title}">
-                                    <i data-lucide="share-2" class="w-4 h-4"></i> Share
-                                </button>
-                                <button class="hover:text-primary transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 p-1 rounded" aria-label="Save">
-                                    <i data-lucide="bookmark" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div id="comments-${update.id}" class="hidden mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                            <div class="flex gap-3">
-                                <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0 overflow-hidden">
-                                    <img src="https://ui-avatars.com/api/?name=User&background=random" alt="You">
-                                </div>
-                                <div class="flex-1">
-                                    <textarea rows="2" placeholder="What are your thoughts?" class="w-full bg-gray-50 dark:bg-navy border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none resize-none text-gray-900 dark:text-white transition-all"></textarea>
-                                    <div class="flex justify-end mt-2">
-                                        <button class="bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-full opacity-50 cursor-not-allowed">Reply</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-                `;
-                container.insertAdjacentHTML('beforeend', cardHTML);
-            });
-            lucide.createIcons();
-            if (hasBreaking) {
-                setTimeout(() => playBreakingSound(), 300);
-            }
-        }
-
-        function bindEvents() {
-            const tabs = document.querySelectorAll('.tab-btn');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', (e) => {
-                    const target = e.currentTarget.getAttribute('data-target');
-                    if (state.tab === target) return;
-                    tabs.forEach(t => {
-                        t.classList.remove('active', 'bg-primary', 'text-white', 'shadow-md');
-                        t.classList.add('bg-gray-200', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
-                    });
-                    e.currentTarget.classList.add('active', 'bg-primary', 'text-white', 'shadow-md');
-                    e.currentTarget.classList.remove('bg-gray-200', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
-                    state.tab = target;
-                    const container = document.getElementById('feedContainer');
-                    container.style.opacity = '0';
-                    setTimeout(() => {
-                        renderFeed();
-                        container.style.opacity = '1';
-                    }, 150);
-                });
-            });
-
-            document.getElementById('feedContainer').addEventListener('click', (e) => {
-                const voteBtn = e.target.closest('.vote-btn');
-                if (voteBtn) {
-                    e.stopPropagation();
-                    handleVote(voteBtn.dataset.id, voteBtn.dataset.type);
-                    return;
-                }
-                const shareBtn = e.target.closest('.share-btn');
-                if (shareBtn) {
-                    e.stopPropagation();
-                    handleShare(shareBtn.dataset.title);
-                    return;
-                }
-                const commentBtn = e.target.closest('.toggle-comment');
-                if (commentBtn) {
-                    e.stopPropagation();
-                    const id = commentBtn.dataset.id;
-                    const commentSection = document.getElementById(`comments-${id}`);
-                    if (commentSection.classList.contains('hidden')) {
-                        commentSection.classList.remove('hidden');
-                        commentSection.classList.add('animate-slide-up');
-                    } else {
-                        commentSection.classList.add('hidden');
-                        commentSection.classList.remove('animate-slide-up');
-                    }
-                    return;
-                }
-            });
-        }
-
-        function handleVote(id, type) {
-            const val = type === 'up' ? 1 : -1;
-            const currentVote = state.votes[id] || 0;
-            if (currentVote === val) {
-                delete state.votes[id];
-            } else {
-                state.votes[id] = val;
-            }
-            localStorage.setItem('gf_votes', JSON.stringify(state.votes));
-            updateVoteDOM(id);
-        }
-
-        function updateVoteDOM(id) {
-            const userVote = state.votes[id] || 0;
-            const item = updates.find(u => u.id === id);
-            const displayVotes = item.upvotes + userVote;
-            const formattedVotes = displayVotes > 999 ? (displayVotes/1000).toFixed(1) + 'k' : displayVotes;
-            const counts = document.querySelectorAll(`#vote-count-${id}`);
-            counts.forEach(countEl => {
-                countEl.textContent = formattedVotes;
-                countEl.className = `font-bold text-xs md:text-sm ${userVote === 1 ? 'text-primary' : (userVote === -1 ? 'text-accent' : 'text-gray-700 dark:text-gray-300')}`;
-                const container = countEl.parentElement;
-                const upBtn = container.querySelector('[data-type="up"]');
-                const downBtn = container.querySelector('[data-type="down"]');
-                upBtn.className = `vote-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${userVote === 1 ? 'vote-active-up' : 'text-gray-400'}`;
-                downBtn.className = `vote-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${userVote === -1 ? 'vote-active-down' : 'text-gray-400'}`;
-            });
-        }
-
-        function handleShare(title) {
-            const dummyUrl = `https://gameflowcentral.com/news/${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(dummyUrl).then(() => {
-                    showToast('Link copied to clipboard!');
-                }).catch(err => {
-                    fallbackCopyTextToClipboard(dummyUrl);
-                });
-            } else {
-                fallbackCopyTextToClipboard(dummyUrl);
-            }
-        }
-
-        function fallbackCopyTextToClipboard(text) {
-            try {
-                const textArea = document.createElement("textarea");
-                textArea.value = text;
-                textArea.style.position = "fixed";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                showToast('Link copied to clipboard!');
-            } catch (err) {
-                showToast('Unable to copy link.');
-            }
-        }
-
         function showToast(message) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -586,6 +350,316 @@
                 }, 300);
             }, 3000);
         }
+
+        function updateAuthUI(user) {
+            state.currentUser = user;
+            const signInBtn = document.getElementById('signInBtn');
+            const profileBtn = document.getElementById('profileBtn');
+            const profilePic = document.getElementById('profilePic');
+            const profileDisplayName = document.getElementById('profileDisplayName');
+            const profileEmail = document.getElementById('profileEmail');
+            if (user) {
+                signInBtn.classList.add('hidden');
+                profileBtn.classList.remove('hidden');
+                profilePic.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=0B0F19&color=fff`;
+                profileDisplayName.textContent = user.displayName || 'User';
+                profileEmail.textContent = user.email || '';
+            } else {
+                signInBtn.classList.remove('hidden');
+                profileBtn.classList.add('hidden');
+            }
+            renderFeed();
+        }
+
+        document.getElementById('signInBtn').addEventListener('click', async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                showToast('Sign-in failed');
+            }
+        });
+
+        document.getElementById('signOutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+        });
+
+        const profileBtn = document.getElementById('profileBtn');
+        const profileMenu = document.getElementById('profileMenu');
+        profileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileMenu.classList.toggle('opacity-0');
+            profileMenu.classList.toggle('pointer-events-none');
+            profileMenu.classList.toggle('scale-95');
+            profileMenu.classList.toggle('opacity-100');
+            profileMenu.classList.toggle('scale-100');
+        });
+        document.addEventListener('click', () => {
+            profileMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+            profileMenu.classList.remove('opacity-100', 'scale-100');
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            updateAuthUI(user);
+            if (user) {
+                loadUserVotes(user.uid);
+            } else {
+                state.userVotes = {};
+                renderFeed();
+            }
+        });
+
+        async function loadUserVotes(uid) {
+            const votesRef = collection(db, 'posts');
+            const unsubscribe = onSnapshot(votesRef, (snapshot) => {
+                const userVotes = {};
+                snapshot.forEach(doc => {
+                    const postId = doc.id;
+                    const voteDoc = doc.data().votes ? doc.data().votes[uid] : undefined;
+                    if (voteDoc) {
+                        userVotes[postId] = voteDoc.value;
+                    }
+                });
+                state.userVotes = userVotes;
+                renderFeed();
+            }, { includeMetadataChanges: false });
+            return unsubscribe;
+        }
+
+        function renderFeed() {
+            const container = document.getElementById('feedContainer');
+            container.innerHTML = '';
+            const filteredPosts = state.posts.filter(p => p.tab === state.tab);
+            if (filteredPosts.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-gray-500 dark:text-gray-400">No updates found for this category.</div>`;
+                return;
+            }
+            filteredPosts.forEach((post, index) => {
+                const postId = post.id;
+                const userVote = state.userVotes[postId] || 0;
+                const upvotes = post.upvotes || 0;
+                const downvotes = post.downvotes || 0;
+                const totalVotes = upvotes - downvotes;
+                const formattedVotes = totalVotes > 999 ? (totalVotes/1000).toFixed(1) + 'k' : totalVotes;
+                const formattedComments = post.commentCount > 999 ? (post.commentCount/1000).toFixed(1) + 'k' : post.commentCount;
+                const cardHTML = `
+                <article class="bg-white dark:bg-navy-card rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-800 flex flex-col md:flex-row group animate-slide-up" style="animation-delay: ${index * 50}ms">
+                    <div class="order-last md:order-first mt-3 md:mt-0 flex md:flex-col items-center justify-between md:justify-start gap-2 pt-3 md:pt-4 border-t border-gray-100 dark:border-gray-800 md:border-t-0 md:w-16 shrink-0 bg-gray-50/50 dark:bg-gray-900/20 md:rounded-l-xl px-4 md:px-0 pb-3 md:pb-0">
+                        <div class="flex md:flex-col items-center gap-1 md:gap-2">
+                            <button class="vote-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${userVote === 1 ? 'vote-active-up' : 'text-gray-400'}" data-post-id="${postId}" data-type="up" aria-label="Upvote">
+                                <i data-lucide="arrow-up" class="w-5 h-5 md:w-6 md:h-6"></i>
+                            </button>
+                            <span class="font-bold text-xs md:text-sm ${userVote === 1 ? 'text-primary' : (userVote === -1 ? 'text-accent' : 'text-gray-700 dark:text-gray-300')}">${formattedVotes}</span>
+                            <button class="vote-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${userVote === -1 ? 'vote-active-down' : 'text-gray-400'}" data-post-id="${postId}" data-type="down" aria-label="Downvote">
+                                <i data-lucide="arrow-down" class="w-5 h-5 md:w-6 md:h-6"></i>
+                            </button>
+                        </div>
+                        <div class="flex md:hidden items-center gap-4 text-gray-500 dark:text-gray-400">
+                            <button class="flex items-center gap-1.5 hover:text-primary transition-colors text-sm font-medium toggle-comment" data-post-id="${postId}">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i> ${formattedComments}
+                            </button>
+                            <button class="flex items-center gap-1.5 hover:text-blue-500 transition-colors text-sm font-medium share-btn" data-title="${post.title}">
+                                <i data-lucide="share-2" class="w-4 h-4"></i> Share
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 p-4 md:py-4 md:pr-6 cursor-pointer">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="${post.color || 'bg-gray-500'} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">${post.category}</span>
+                                ${post.isBreaking ? '<span class="flex items-center gap-1 text-red-500 text-xs font-bold uppercase tracking-wider animate-pulse-fast"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div> Breaking</span>' : ''}
+                            </div>
+                            <time class="text-xs text-gray-500 dark:text-gray-400">${post.timeAgo || ''}</time>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 leading-snug mb-1 group-hover:text-primary transition-colors">
+                            <a href="post.html?p=${postId}" class="hover:underline focus:outline-none">${post.title}</a>
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                            ${post.excerpt || ''}
+                        </p>
+                        <div class="flex items-center justify-between mt-auto">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-bold text-gray-700 dark:text-gray-300">
+                                    ${post.authorInitials || '?'}
+                                </div>
+                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300 hover:underline">u/${post.authorUsername || post.authorName}</span>
+                            </div>
+                            <div class="hidden md:flex items-center gap-5 text-gray-500 dark:text-gray-400">
+                                <button class="flex items-center gap-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded transition-colors text-xs font-semibold toggle-comment" data-post-id="${postId}">
+                                    <i data-lucide="message-circle" class="w-4 h-4"></i> ${formattedComments} Comments
+                                </button>
+                                <button class="flex items-center gap-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded transition-colors text-xs font-semibold share-btn" data-title="${post.title}">
+                                    <i data-lucide="share-2" class="w-4 h-4"></i> Share
+                                </button>
+                                <button class="hover:text-primary transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 p-1 rounded" aria-label="Save">
+                                    <i data-lucide="bookmark" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="comments-${postId}" class="hidden mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                            <div class="flex gap-3">
+                                <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0 overflow-hidden">
+                                    <img src="https://ui-avatars.com/api/?name=User&background=random" alt="You">
+                                </div>
+                                <div class="flex-1">
+                                    <textarea rows="2" placeholder="What are your thoughts?" class="w-full bg-gray-50 dark:bg-navy border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none resize-none text-gray-900 dark:text-white transition-all"></textarea>
+                                    <div class="flex justify-end mt-2">
+                                        <button class="bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-full opacity-50 cursor-not-allowed">Reply</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHTML);
+            });
+            lucide.createIcons();
+        }
+
+        function handleVote(postId, type) {
+            if (!state.currentUser) {
+                showToast('Sign in to vote');
+                return;
+            }
+            const userId = state.currentUser.uid;
+            const voteRef = doc(db, 'posts', postId, 'votes', userId);
+            const val = type === 'up' ? 1 : -1;
+            const currentVote = state.userVotes[postId] || 0;
+            if (currentVote === val) {
+                deleteDoc(voteRef).then(() => {
+                    state.userVotes[postId] = 0;
+                    renderFeed();
+                }).catch(() => showToast('Failed to remove vote'));
+            } else {
+                setDoc(voteRef, { value: val, userId: userId, postId: postId }).then(() => {
+                    state.userVotes[postId] = val;
+                    renderFeed();
+                }).catch(() => showToast('Failed to vote'));
+            }
+        }
+
+        function handleShare(title) {
+            const dummyUrl = `https://gameflowcentral.com/post?p=${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(dummyUrl).then(() => {
+                    showToast('Link copied to clipboard!');
+                }).catch(() => {
+                    fallbackCopyTextToClipboard(dummyUrl);
+                });
+            } else {
+                fallbackCopyTextToClipboard(dummyUrl);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('Link copied to clipboard!');
+            } catch (err) {
+                showToast('Unable to copy link.');
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            const voteBtn = e.target.closest('.vote-btn');
+            if (voteBtn) {
+                e.stopPropagation();
+                handleVote(voteBtn.dataset.postId, voteBtn.dataset.type);
+                return;
+            }
+            const shareBtn = e.target.closest('.share-btn');
+            if (shareBtn) {
+                e.stopPropagation();
+                handleShare(shareBtn.dataset.title);
+                return;
+            }
+            const commentBtn = e.target.closest('.toggle-comment');
+            if (commentBtn) {
+                e.stopPropagation();
+                const postId = commentBtn.dataset.postId;
+                const commentSection = document.getElementById(`comments-${postId}`);
+                if (commentSection.classList.contains('hidden')) {
+                    commentSection.classList.remove('hidden');
+                    commentSection.classList.add('animate-slide-up');
+                } else {
+                    commentSection.classList.add('hidden');
+                    commentSection.classList.remove('animate-slide-up');
+                }
+                return;
+            }
+        });
+
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const target = e.currentTarget.getAttribute('data-target');
+                if (state.tab === target) return;
+                tabs.forEach(t => {
+                    t.classList.remove('active', 'bg-primary', 'text-white', 'shadow-md');
+                    t.classList.add('bg-gray-200', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
+                });
+                e.currentTarget.classList.add('active', 'bg-primary', 'text-white', 'shadow-md');
+                e.currentTarget.classList.remove('bg-gray-200', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
+                state.tab = target;
+                renderFeed();
+            });
+        });
+
+        const postsRef = collection(db, 'posts');
+        onSnapshot(postsRef, (snapshot) => {
+            const posts = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const post = {
+                    id: doc.id,
+                    title: data.title,
+                    excerpt: data.excerpt,
+                    category: data.category,
+                    color: data.color || 'bg-gray-500',
+                    authorName: data.authorName,
+                    authorUsername: data.authorUsername,
+                    authorInitials: data.authorInitials,
+                    createdAt: data.createdAt ? data.createdAt.toDate() : new Date(),
+                    isBreaking: data.isBreaking || false,
+                    tab: data.tab || 'latest',
+                    upvotes: data.upvotes || 0,
+                    downvotes: data.downvotes || 0,
+                    commentCount: data.commentCount || 0,
+                    timeAgo: getTimeAgo(data.createdAt ? data.createdAt.toDate() : new Date())
+                };
+                posts.push(post);
+            });
+            state.posts = posts;
+            renderFeed();
+        });
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            let interval = Math.floor(seconds / 31536000);
+            if (interval > 1) return interval + 'y ago';
+            interval = Math.floor(seconds / 2592000);
+            if (interval > 1) return interval + 'mo ago';
+            interval = Math.floor(seconds / 86400);
+            if (interval > 1) return interval + 'd ago';
+            interval = Math.floor(seconds / 3600);
+            if (interval > 1) return interval + 'h ago';
+            interval = Math.floor(seconds / 60);
+            if (interval > 1) return interval + 'm ago';
+            return 'just now';
+        }
+
+        applyTheme();
+        updateSoundIcon();
+        lucide.createIcons();
     </script>
 </body>
-  </html>
+    </html>
