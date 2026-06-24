@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In – GameFlow Central</title>
+    <meta name="description" content="Sign in to GameFlow Central to join the conversation, vote on posts, and connect with sports fans.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF5A1F',
+                        primaryHover: '#E04A15',
+                        navy: { DEFAULT: '#0B0F19', card: '#1A1F2B', hover: '#242B3B' },
+                        accent: '#3B82F6',
+                        lightbg: '#F9FAFB',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Bebas Neue', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-header {
+                @apply bg-white/80 dark:bg-navy/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800;
+            }
+            .bg-mesh-dark {
+                background-image: radial-gradient(at 0% 0%, rgba(11,15,25,1) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(26,31,43,0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(11,15,25,1) 0, transparent 50%);
+            }
+        }
+    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-lightbg dark:bg-navy text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-300 min-h-screen flex flex-col">
+    <div class="fixed inset-0 z-[-1] opacity-50 dark:opacity-100 bg-mesh-dark pointer-events-none"></div>
+
+    <header class="sticky top-0 z-50 glass-header transition-colors duration-300">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2 shrink-0 group">
+                <div class="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform">
+                    <i data-lucide="zap" class="w-5 h-5 fill-white"></i>
+                </div>
+                <span class="font-display text-2xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 hidden sm:block">
+                    GameFlow <span class="text-primary">Central</span>
+                </span>
+            </a>
+            <div class="flex items-center gap-3">
+                <button id="themeToggle" aria-label="Toggle dark mode" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-navy-card text-gray-500 dark:text-gray-400 transition-colors">
+                    <i data-lucide="sun" id="themeIcon" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex items-center justify-center px-4 py-12">
+        <div class="w-full max-w-md">
+            <div class="bg-white dark:bg-navy-card rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-8">
+                <div class="text-center mb-6">
+                    <i data-lucide="zap" class="w-10 h-10 text-primary mx-auto mb-2"></i>
+                    <h1 class="text-2xl font-bold font-display tracking-wide">Welcome back</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1" id="formSubtitle">Sign in to your account</p>
+                </div>
+
+                <div class="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mb-6">
+                    <button id="signInTab" class="flex-1 py-2 text-sm font-semibold rounded-md transition-all bg-white dark:bg-navy-card shadow text-gray-900 dark:text-white">Sign In</button>
+                    <button id="signUpTab" class="flex-1 py-2 text-sm font-semibold rounded-md transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">Create Account</button>
+                </div>
+
+                <div id="socialButtons" class="space-y-3 mb-6">
+                    <button id="googleSignIn" class="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-medium py-2.5 px-4 rounded-lg transition-colors">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        Continue with Google
+                    </button>
+                    <button id="appleSignIn" class="w-full flex items-center justify-center gap-3 bg-black dark:bg-white dark:text-gray-900 text-white font-medium py-2.5 px-4 rounded-lg hover:opacity-90 transition-opacity">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                        Continue with Apple
+                    </button>
+                </div>
+
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200 dark:border-gray-700"></div></div>
+                    <div class="relative flex justify-center text-sm"><span class="px-2 bg-white dark:bg-navy-card text-gray-500">or</span></div>
+                </div>
+
+                <form id="emailForm" class="space-y-4">
+                    <div id="usernameField" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
+                        <input type="text" id="username" class="w-full bg-gray-50 dark:bg-navy border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="coolfan123" autocomplete="username">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                        <input type="email" id="email" required class="w-full bg-gray-50 dark:bg-navy border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="you@example.com" autocomplete="email">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                        <input type="password" id="password" required minlength="6" class="w-full bg-gray-50 dark:bg-navy border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="••••••••" autocomplete="current-password">
+                    </div>
+                    <div id="confirmPasswordField" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm Password</label>
+                        <input type="password" id="confirmPassword" minlength="6" class="w-full bg-gray-50 dark:bg-navy border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="••••••••" autocomplete="new-password">
+                    </div>
+                    <div id="errorMessage" class="text-red-500 text-sm hidden"></div>
+                    <button type="submit" id="submitBtn" class="w-full bg-primary hover:bg-primaryHover text-white font-semibold py-2.5 px-4 rounded-lg transition-colors">Sign In</button>
+                </form>
+
+                <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-6">
+                    By continuing, you agree to GameFlow Central's <a href="terms.html" class="underline hover:text-primary">Terms</a> and <a href="privacy.html" class="underline hover:text-primary">Privacy Policy</a>.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script type="module">
+        import { db, auth } from './firebase-config.js';
+        import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+        import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+        const theme = localStorage.getItem('gf_theme') || 'dark';
+        const html = document.documentElement;
+        const themeIcon = document.getElementById('themeIcon');
+        if (theme === 'dark') {
+            html.classList.add('dark');
+            themeIcon.setAttribute('data-lucide', 'sun');
+        } else {
+            html.classList.remove('dark');
+            themeIcon.setAttribute('data-lucide', 'moon');
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            const isDark = html.classList.toggle('dark');
+            localStorage.setItem('gf_theme', isDark ? 'dark' : 'light');
+            themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+            lucide.createIcons({ root: themeIcon.parentNode });
+        });
+
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform translate-y-10 opacity-0 transition-all duration-300 pointer-events-auto';
+            toast.innerHTML = `<i data-lucide="info" class="w-4 h-4 text-primary"></i><span class="text-sm font-medium">${message}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons({ root: toast });
+            requestAnimationFrame(() => toast.classList.remove('translate-y-10', 'opacity-0'));
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => { if (container.contains(toast)) container.removeChild(toast); }, 300);
+            }, 3000);
+        }
+
+        let isSignUp = false;
+        const signInTab = document.getElementById('signInTab');
+        const signUpTab = document.getElementById('signUpTab');
+        const submitBtn = document.getElementById('submitBtn');
+        const formSubtitle = document.getElementById('formSubtitle');
+        const usernameField = document.getElementById('usernameField');
+        const confirmPasswordField = document.getElementById('confirmPasswordField');
+        const emailForm = document.getElementById('emailForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const socialButtons = document.getElementById('socialButtons');
+
+        function toggleMode(signUp) {
+            isSignUp = signUp;
+            if (signUp) {
+                signUpTab.className = 'flex-1 py-2 text-sm font-semibold rounded-md transition-all bg-white dark:bg-navy-card shadow text-gray-900 dark:text-white';
+                signInTab.className = 'flex-1 py-2 text-sm font-semibold rounded-md transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
+                submitBtn.textContent = 'Create Account';
+                formSubtitle.textContent = 'Join the community';
+                usernameField.classList.remove('hidden');
+                confirmPasswordField.classList.remove('hidden');
+                socialButtons.classList.add('hidden');
+            } else {
+                signInTab.className = 'flex-1 py-2 text-sm font-semibold rounded-md transition-all bg-white dark:bg-navy-card shadow text-gray-900 dark:text-white';
+                signUpTab.className = 'flex-1 py-2 text-sm font-semibold rounded-md transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
+                submitBtn.textContent = 'Sign In';
+                formSubtitle.textContent = 'Sign in to your account';
+                usernameField.classList.add('hidden');
+                confirmPasswordField.classList.add('hidden');
+                socialButtons.classList.remove('hidden');
+            }
+            errorMessage.classList.add('hidden');
+            emailForm.reset();
+        }
+
+        signInTab.addEventListener('click', () => toggleMode(false));
+        signUpTab.addEventListener('click', () => toggleMode(true));
+
+        document.getElementById('googleSignIn').addEventListener('click', async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (!userDoc.exists()) {
+                    await setDoc(doc(db, 'users', user.uid), {
+                        username: user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, ''),
+                        displayName: user.displayName || user.email.split('@')[0],
+                        email: user.email,
+                        profilePicture: user.photoURL || '',
+                        bio: '',
+                        posts: [],
+                        followers: [],
+                        following: [],
+                        followersCount: 0,
+                        followingCount: 0,
+                        createdAt: new Date()
+                    });
+                }
+                window.location.href = 'index.html';
+            } catch (error) {
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    showToast('Google sign-in failed. Please try again.');
+                }
+            }
+        });
+
+        document.getElementById('appleSignIn').addEventListener('click', () => {
+            showToast('Apple Sign-In coming soon!');
+        });
+
+        emailForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMessage.classList.add('hidden');
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (isSignUp) {
+                const username = document.getElementById('username').value.trim().toLowerCase();
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                if (!username || username.length < 3) {
+                    showError('Username must be at least 3 characters.');
+                    return;
+                }
+                if (!/^[a-z0-9_]+$/.test(username)) {
+                    showError('Username can only contain letters, numbers, and underscores.');
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    showError('Passwords do not match.');
+                    return;
+                }
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    await setDoc(doc(db, 'users', user.uid), {
+                        username: username,
+                        displayName: username,
+                        email: email,
+                        profilePicture: '',
+                        bio: '',
+                        posts: [],
+                        followers: [],
+                        following: [],
+                        followersCount: 0,
+                        followingCount: 0,
+                        createdAt: new Date()
+                    });
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    if (error.code === 'auth/email-already-in-use') showError('This email is already registered.');
+                    else if (error.code === 'auth/weak-password') showError('Password must be at least 6 characters.');
+                    else showError('An error occurred. Please try again.');
+                }
+            } else {
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') showError('Invalid email or password.');
+                    else showError('Sign-in failed. Please check your credentials.');
+                }
+            }
+        });
+
+        function showError(msg) {
+            errorMessage.textContent = msg;
+            errorMessage.classList.remove('hidden');
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) window.location.href = 'index.html';
+        });
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
