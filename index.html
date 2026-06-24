@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameFlow Central | Premium Sports Updates & News</title>
+    
+    <!-- SEO & Meta Tags -->
+    <meta name="description" content="Get the latest sports news, breaking updates, and trending stories from GameFlow Central. Your premium hub for NBA, NFL, Soccer, and more.">
+    <meta name="keywords" content="sports news, live updates, NFL, NBA, Soccer, Tennis, UFC, breaking sports, GameFlow Central">
+    <meta name="author" content="GameFlow Central">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gameflowcentral.com/">
+    <meta property="og:title" content="GameFlow Central | Premium Sports Updates">
+    <meta property="og:description" content="Get the latest sports news, breaking updates, and trending stories from GameFlow Central.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://gameflowcentral.com/">
+    <meta property="twitter:title" content="GameFlow Central | Premium Sports Updates">
+    <meta property="twitter:description" content="Get the latest sports news, breaking updates, and trending stories.">
+    <meta property="twitter:image" content="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80">
+
+    <!-- Favicon (Data URI Emoji) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF5A1F',
+                        primaryHover: '#E04A15',
+                        navy: {
+                            DEFAULT: '#0B0F19',
+                            card: '#1A1F2B',
+                            hover: '#242B3B'
+                        },
+                        accent: '#3B82F6',
+                        lightbg: '#F9FAFB',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Bebas Neue', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-up': 'slideUp 0.3s ease-out forwards',
+                        'fade-in': 'fadeIn 0.4s ease-out forwards',
+                    },
+                    keyframes: {
+                        slideUp: {
+                            '0%': { transform: 'translateY(10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS for specific micro-interactions -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-header {
+                @apply bg-white/80 dark:bg-navy/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800;
+            }
+            .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            .hide-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            /* Vote button active states */
+            .vote-active-up {
+                @apply text-primary bg-primary/10 dark:bg-primary/20;
+            }
+            .vote-active-down {
+                @apply text-accent bg-accent/10 dark:bg-accent/20;
+            }
+            /* Mesh gradient background for dark mode */
+            .bg-mesh-dark {
+                background-image: 
+                    radial-gradient(at 0% 0%, rgba(11, 15, 25, 1) 0, transparent 50%), 
+                    radial-gradient(at 100% 0%, rgba(26, 31, 43, 0.5) 0, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(11, 15, 25, 1) 0, transparent 50%);
+            }
+        }
+    </style>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-lightbg dark:bg-navy text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-300 min-h-screen relative pb-10">
+
+    <!-- Background Pattern -->
+    <div class="fixed inset-0 z-[-1] opacity-50 dark:opacity-100 bg-mesh-dark pointer-events-none transition-opacity duration-300">
+        <!-- SVG Grid pattern overlay -->
+        <svg class="absolute inset-0 h-full w-full opacity-[0.03] dark:opacity-[0.05]" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M0 40V0H40" fill="none" stroke="currentColor" stroke-width="1"></path>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid-pattern)"></rect>
+        </svg>
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glass-header transition-colors duration-300">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+            <!-- Logo -->
+            <a href="#" class="flex items-center gap-2 shrink-0 group">
+                <div class="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform">
+                    <i data-lucide="zap" class="w-5 h-5 fill-white"></i>
+                </div>
+                <span class="font-display text-2xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 hidden sm:block">
+                    GameFlow <span class="text-primary">Central</span>
+                </span>
+            </a>
+
+            <!-- Navigation (Desktop) -->
+            <nav class="hidden md:flex items-center gap-6 font-medium text-sm">
+                <a href="#" class="text-primary hover:text-primaryHover transition-colors border-b-2 border-primary py-5">Home</a>
+                <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors py-5 border-b-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600">Scores</a>
+                <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors py-5 border-b-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600">News</a>
+                <a href="#" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors py-5 border-b-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600">Videos</a>
+            </nav>
+
+            <!-- Right Actions -->
+            <div class="flex items-center gap-3 w-full justify-end md:w-auto">
+                <!-- Search -->
+                <div class="relative group flex-1 md:w-64 max-w-sm">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                    </div>
+                    <input type="text" placeholder="Search teams, players..." class="w-full bg-gray-100 dark:bg-navy-card border border-transparent dark:border-gray-700 text-gray-900 dark:text-gray-100 text-sm rounded-full focus:ring-2 focus:ring-primary focus:border-transparent block pl-10 p-2 transition-all group-hover:border-gray-300 dark:group-hover:border-gray-600 outline-none">
+                </div>
+
+                <!-- Sound Toggle -->
+                <button id="soundToggle" aria-label="Toggle breaking news sound" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-navy-card text-gray-500 dark:text-gray-400 transition-colors relative" title="Toggle alerts">
+                    <i data-lucide="volume-x" id="soundIcon" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Theme Toggle -->
+                <button id="themeToggle" aria-label="Toggle dark mode" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-navy-card text-gray-500 dark:text-gray-400 transition-colors">
+                    <i data-lucide="sun" id="themeIcon" class="w-5 h-5"></i>
+                </button>
+
+                <!-- Profile Dropdown Trigger -->
+                <div class="relative">
+                    <button id="profileBtn" aria-label="User profile" class="w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-navy">
+                        <img src="https://ui-avatars.com/api/?name=User&background=0B0F19&color=fff" alt="User Avatar" class="w-full h-full object-cover">
+                    </button>
+                    <!-- Dropdown Content (Hidden by default) -->
+                    <div id="profileMenu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-navy-card border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl py-2 opacity-0 pointer-events-none transform scale-95 transition-all origin-top-right z-50">
+                        <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-800">
+                            <p class="text-sm font-semibold">Guest User</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Join the community</p>
+                        </div>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mt-1">Log in / Sign up</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Settings</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-3xl mx-auto px-4 mt-6">
+        
+        <!-- Hero Section (Top Highlight) -->
+        <section class="mb-8 animate-fade-in relative group cursor-pointer">
+            <div class="absolute inset-0 bg-gradient-to-r from-primary to-orange-500 rounded-2xl opacity-10 group-hover:opacity-20 transition-opacity blur-xl"></div>
+            <article class="relative bg-white dark:bg-navy-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row">
+                <div class="sm:w-1/3 h-48 sm:h-auto relative overflow-hidden bg-gray-200 dark:bg-gray-800">
+                    <!-- Hero Image Placeholder -->
+                    <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Football stadium" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent sm:bg-gradient-to-r"></div>
+                    <div class="absolute bottom-3 left-3 sm:hidden">
+                        <span class="bg-primary text-white text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider">Editor's Pick</span>
+                    </div>
+                </div>
+                <div class="p-6 sm:w-2/3 flex flex-col justify-center relative">
+                    <div class="hidden sm:inline-block mb-3">
+                        <span class="bg-primary/10 text-primary border border-primary/20 text-xs font-bold px-2 py-1 rounded-md uppercase tracking-wider">Editor's Pick</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight mb-2 group-hover:text-primary transition-colors">
+                        NFL Draft 2026: Shocking trade shakes up the first overall pick
+                    </h2>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+                        In a move nobody saw coming, the Panthers have traded their number one overall pick for a massive haul of future assets and veteran talent.
+                    </p>
+                    <div class="flex items-center justify-between mt-auto">
+                        <div class="flex items-center gap-2">
+                            <img src="https://ui-avatars.com/api/?name=Alex+G&background=random" alt="Author" class="w-6 h-6 rounded-full">
+                            <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Alex G.</span>
+                            <span class="text-gray-400 text-xs">•</span>
+                            <time class="text-xs text-gray-500">1h ago</time>
+                        </div>
+                        <button class="text-primary text-sm font-semibold hover:underline flex items-center gap-1">
+                            Read full story <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <!-- Tabs Navigation -->
+        <nav class="flex items-center gap-2 mb-6 overflow-x-auto hide-scrollbar border-b border-gray-200 dark:border-gray-800 pb-2" aria-label="Feed filters">
+            <button class="tab-btn active px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all bg-primary text-white shadow-md" data-target="trending">
+                <i data-lucide="flame" class="w-4 h-4 inline-block mr-1"></i> Trending
+            </button>
+            <button class="tab-btn px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700" data-target="top">
+                <i data-lucide="arrow-up-circle" class="w-4 h-4 inline-block mr-1"></i> Top
+            </button>
+            <button class="tab-btn px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700" data-target="latest">
+                <i data-lucide="clock" class="w-4 h-4 inline-block mr-1"></i> Latest
+            </button>
+        </nav>
+
+        <!-- Feed Container -->
+        <div id="feedContainer" class="space-y-4 min-h-[500px]">
+            <!-- Dynamic Cards injected here by JS -->
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-16 bg-white dark:bg-navy-card border-t border-gray-200 dark:border-gray-800">
+        <div class="max-w-5xl mx-auto px-4 py-10">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h3 class="font-display tracking-wider text-lg mb-4 text-gray-900 dark:text-white">GameFlow <span class="text-primary">Central</span></h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">The premier destination for sports fans. Breaking news, scores, and community insights.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-4 uppercase tracking-wider">Categories</h4>
+                    <ul class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+                        <li><a href="#" class="hover:text-primary transition-colors">NFL Football</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">NBA Basketball</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">World Soccer</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Combat Sports</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-4 uppercase tracking-wider">Legal</h4>
+                    <ul class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+                        <li><a href="#" class="hover:text-primary transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Cookie Settings</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-4 uppercase tracking-wider">Follow Us</h4>
+                    <div class="flex items-center gap-4">
+                        <a href="#" aria-label="Twitter" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-[#1DA1F2] hover:text-white transition-colors"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+                        <a href="#" aria-label="YouTube" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-[#FF0000] hover:text-white transition-colors"><i data-lucide="youtube" class="w-4 h-4"></i></a>
+                        <a href="#" aria-label="Instagram" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-[#E1306C] hover:text-white transition-colors"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+                        <a href="#" aria-label="Twitch" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-[#9146FF] hover:text-white transition-colors"><i data-lucide="twitch" class="w-4 h-4"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-gray-200 dark:border-gray-800 text-center flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400">&copy; 2026 GameFlow Central. All rights reserved.</p>
+                <div class="flex items-center gap-2 text-xs text-gray-500">
+                    Made with <i data-lucide="heart" class="w-3 h-3 text-red-500 fill-red-500"></i> by Sports Fans
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Application Logic -->
+    <script>
+        // --- Dummy Data ---
+        const updates = [
+            { id: 'u1', tab: 'trending', category: 'NBA', color: 'bg-orange-500', title: 'LeBron drops 40 in Game 7 thriller against the Celtics', excerpt: 'In a stunning display of longevity, LeBron James secures another legacy-defining win, hitting the game-winner with 1.2 seconds left.', author: 'HoopsInsider', initials: 'HI', time: '2h ago', upvotes: 1420, comments: 342, isBreaking: false },
+            { id: 'u2', tab: 'latest', category: 'Soccer', color: 'bg-green-600', title: 'Transfer bomb: Mbappé to Real Madrid finalized', excerpt: 'The long-awaited saga comes to a close as Madrid officially announces the signing of the French superstar on a 5-year deal. Presentation set for Tuesday.', author: 'FabrizioHere', initials: 'FH', time: '10m ago', upvotes: 4500, comments: 890, isBreaking: true },
+            { id: 'u3', tab: 'top', category: 'NFL', color: 'bg-blue-600', title: 'Chiefs dynasty cemented with 4th Super Bowl ring', excerpt: 'Mahomes and Reid orchestrate a masterful comeback in the 4th quarter. Is this the greatest duo in NFL history?', author: 'GridironGuru', initials: 'GG', time: '1d ago', upvotes: 8900, comments: 1205, isBreaking: false },
+            { id: 'u4', tab: 'latest', category: 'UFC', color: 'bg-red-600', title: 'UFC 300 main event announced by Dana White', excerpt: 'McGregor returns to the octagon to face Chandler in the highly anticipated milestone event. Tickets go on sale next Friday.', author: 'MMA_Junkie', initials: 'MJ', time: '35m ago', upvotes: 892, comments: 210, isBreaking: false },
+            { id: 'u5', tab: 'trending', category: 'Tennis', color: 'bg-yellow-500', title: 'Wimbledon Final: Alcaraz defends title in straight sets', excerpt: 'Carlos Alcaraz puts on a clinic on center court, proving once again he is the undisputed king of the new generation.', author: 'AceServe', initials: 'AS', time: '4h ago', upvotes: 2100, comments: 156, isBreaking: false },
+            { id: 'u6', tab: 'top', category: 'F1', color: 'bg-red-500', title: 'Verstappen clinches 5th World Championship', excerpt: 'A dominant season concludes in Suzuka as Red Bull Racing secures both the Drivers and Constructors championships.', author: 'PitStop', initials: 'PS', time: '2d ago', upvotes: 3200, comments: 430, isBreaking: false },
+            { id: 'u7', tab: 'trending', category: 'MLB', color: 'bg-blue-800', title: 'Ohtani pitches no-hitter, hits two home runs', excerpt: 'Shohei Ohtani does the impossible again, cementing the greatest single-game performance in baseball history.', author: 'DiamondStats', initials: 'DS', time: '5h ago', upvotes: 5600, comments: 780, isBreaking: true },
+            { id: 'u8', tab: 'latest', category: 'Golf', color: 'bg-green-700', title: 'Tiger Woods announces final Masters appearance', excerpt: 'An emotional press conference at Augusta National reveals this year will be the legend\'s final walk up the 18th fairway.', author: 'LinksLife', initials: 'LL', time: '1h ago', upvotes: 3450, comments: 920, isBreaking: true },
+            { id: 'u9', tab: 'trending', category: 'Soccer', color: 'bg-green-600', title: 'Champions League Semi-Finals set: A preview', excerpt: 'City vs Bayern, Real Madrid vs Arsenal. We break down the tactical matchups ahead of next week\'s clashes.', author: 'TacticBoard', initials: 'TB', time: '7h ago', upvotes: 840, comments: 112, isBreaking: false },
+            { id: 'u10', tab: 'top', category: 'Boxing', color: 'bg-slate-800', title: 'Undisputed: Fury vs Usyk ends in split decision', excerpt: 'A controversial scorecard leaves fans divided after a 12-round war in Riyadh. Rematch clauses already activated.', author: 'RingSide', initials: 'RS', time: '3d ago', upvotes: 4100, comments: 2200, isBreaking: false },
+        ];
+
+        // --- State Management ---
+        const state = {
+            tab: 'trending',
+            theme: localStorage.getItem('gf_theme') || 'dark',
+            sound: localStorage.getItem('gf_sound') === 'true',
+            votes: JSON.parse(localStorage.getItem('gf_votes') || '{}') // { 'u1': 1, 'u2': -1 }
+        };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme();
+            updateSoundIcon();
+            renderFeed();
+            bindEvents();
+            lucide.createIcons();
+            
+            // Profile dropdown logic
+            const profileBtn = document.getElementById('profileBtn');
+            const profileMenu = document.getElementById('profileMenu');
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isHidden = profileMenu.classList.contains('opacity-0');
+                if (isHidden) {
+                    profileMenu.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                    profileMenu.classList.add('opacity-100', 'scale-100');
+                } else {
+                    closeProfileMenu();
+                }
+            });
+            document.addEventListener('click', closeProfileMenu);
+
+            function closeProfileMenu() {
+                profileMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                profileMenu.classList.remove('opacity-100', 'scale-100');
+            }
+        });
+
+        // --- Theme Logic ---
+        function applyTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (state.theme === 'dark') {
+                html.classList.add('dark');
+                themeIcon.setAttribute('data-lucide', 'sun');
+            } else {
+                html.classList.remove('dark');
+                themeIcon.setAttribute('data-lucide', 'moon');
+            }
+            
+            // Re-render icon if lucide is loaded
+            if (window.lucide && themeIcon.parentNode) {
+                lucide.createIcons({ root: themeIcon.parentNode });
+            }
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            state.theme = state.theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('gf_theme', state.theme);
+            applyTheme();
+        });
+
+        // --- Audio Logic (Web Audio API) ---
+        function updateSoundIcon() {
+            const soundIcon = document.getElementById('soundIcon');
+            if (state.sound) {
+                soundIcon.setAttribute('data-lucide', 'volume-2');
+                soundIcon.classList.add('text-primary');
+            } else {
+                soundIcon.setAttribute('data-lucide', 'volume-x');
+                soundIcon.classList.remove('text-primary');
+            }
+            if (window.lucide && soundIcon.parentNode) {
+                lucide.createIcons({ root: soundIcon.parentNode });
+            }
+        }
+
+        document.getElementById('soundToggle').addEventListener('click', () => {
+            state.sound = !state.sound;
+            localStorage.setItem('gf_sound', state.sound);
+            updateSoundIcon();
+            
+            if (state.sound) {
+                // Play test sound immediately to unlock AudioContext on user interaction
+                playBreakingSound();
+                showToast('Alert sounds enabled');
+            } else {
+                showToast('Alert sounds disabled');
+            }
+        });
+
+        function playBreakingSound() {
+            if (!state.sound) return;
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                
+                const ctx = new AudioContext();
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                // create a "news alert" dual-tone beep
+                osc1.type = 'sine';
+                osc2.type = 'triangle';
+                osc1.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                osc2.frequency.setValueAtTime(659.25, ctx.currentTime); // E5
+                
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(ctx.destination);
+                
+                // Envelope
+                gain.gain.setValueAtTime(0, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+                
+                osc1.start(ctx.currentTime);
+                osc2.start(ctx.currentTime);
+                osc1.stop(ctx.currentTime + 0.4);
+                osc2.stop(ctx.currentTime + 0.4);
+            } catch (e) {
+                console.warn('Audio play failed:', e);
+            }
+        }
+
+        // --- Feed Rendering & Logic ---
+        function renderFeed() {
+            const container = document.getElementById('feedContainer');
+            container.innerHTML = ''; // Clear current
+            
+            const filteredUpdates = updates.filter(u => u.tab === state.tab);
+            let hasBreaking = false;
+
+            if (filteredUpdates.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-gray-500 dark:text-gray-400">No updates found for this category.</div>`;
+                return;
+            }
+
+            filteredUpdates.forEach((update, index) => {
+                if (update.isBreaking) hasBreaking = true;
+                
+                // Calculate current vote total based on local state
+                const userVote = state.votes[update.id] || 0;
+                const displayVotes = update.upvotes + userVote;
+                
+                // format numbers (e.g., 1.4k)
+                const formattedVotes = displayVotes > 999 ? (displayVotes/1000).toFixed(1) + 'k' : displayVotes;
+                const formattedComments = update.comments > 999 ? (update.comments/1000).toFixed(1) + 'k' : update.comments;
+
+                const cardHTML = `
+                <article class="bg-white dark:bg-navy-card rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-800 flex flex-col md:flex-row group animate-slide-up" style="animation-delay: ${index * 50}ms">
+                    
+                    <!-- Voting Column (Desktop) & Bottom Row (Mobile) via CSS Order/Flex -->
+                    <div class="order-last md:order-first mt-3 md:mt-0 flex md:flex-col items-center justify-between md:justify-start gap-2 pt-3 md:pt-4 border-t border-gray-100 dark:border-gray-800 md:border-t-0 md:w-16 shrink-0 bg-gray-50/50 dark:bg-gray-900/20 md:rounded-l-xl px-4 md:px-0 pb-3 md:pb-0">
+                        
+                        <!-- Vote Buttons -->
+                        <div class="flex md:flex-col items-center gap-1 md:gap-2">
+                            <button class="vote-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${userVote === 1 ? 'vote-active-up' : 'text-gray-400'}" data-id="${update.id}" data-type="up" aria-label="Upvote">
+                                <i data-lucide="arrow-up" class="w-5 h-5 md:w-6 md:h-6"></i>
+                            </button>
+                            <span class="font-bold text-xs md:text-sm ${userVote === 1 ? 'text-primary' : (userVote === -1 ? 'text-accent' : 'text-gray-700 dark:text-gray-300')}" id="vote-count-${update.id}">${formattedVotes}</span>
+                            <button class="vote-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${userVote === -1 ? 'vote-active-down' : 'text-gray-400'}" data-id="${update.id}" data-type="down" aria-label="Downvote">
+                                <i data-lucide="arrow-down" class="w-5 h-5 md:w-6 md:h-6"></i>
+                            </button>
+                        </div>
+
+                        <!-- Mobile Actions -->
+                        <div class="flex md:hidden items-center gap-4 text-gray-500 dark:text-gray-400">
+                            <button class="flex items-center gap-1.5 hover:text-primary transition-colors text-sm font-medium toggle-comment" data-id="${update.id}">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i> ${formattedComments}
+                            </button>
+                            <button class="flex items-center gap-1.5 hover:text-blue-500 transition-colors text-sm font-medium share-btn" data-title="${update.title}">
+                                <i data-lucide="share-2" class="w-4 h-4"></i> Share
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Main Content Area -->
+                    <div class="flex-1 p-4 md:py-4 md:pr-6 cursor-pointer">
+                        <!-- Header / Meta -->
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="${update.color} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide">${update.category}</span>
+                                ${update.isBreaking ? '<span class="flex items-center gap-1 text-red-500 text-xs font-bold uppercase tracking-wider animate-pulse-fast"><div class="w-1.5 h-1.5 rounded-full bg-red-500"></div> Breaking</span>' : ''}
+                            </div>
+                            <time class="text-xs text-gray-500 dark:text-gray-400">${update.time}</time>
+                        </div>
+                        
+                        <!-- Title & Excerpt -->
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 leading-snug mb-1 group-hover:text-primary transition-colors">
+                            <a href="#" class="hover:underline focus:outline-none" onclick="event.preventDefault();">${update.title}</a>
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+                            ${update.excerpt}
+                        </p>
+                        
+                        <!-- Footer Info & Desktop Actions -->
+                        <div class="flex items-center justify-between mt-auto">
+                            <!-- Author -->
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-bold text-gray-700 dark:text-gray-300">
+                                    ${update.initials}
+                                </div>
+                                <span class="text-xs font-medium text-gray-700 dark:text-gray-300 hover:underline">u/${update.author}</span>
+                            </div>
+                            
+                            <!-- Desktop Actions -->
+                            <div class="hidden md:flex items-center gap-5 text-gray-500 dark:text-gray-400">
+                                <button class="flex items-center gap-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded transition-colors text-xs font-semibold toggle-comment" data-id="${update.id}">
+                                    <i data-lucide="message-circle" class="w-4 h-4"></i> ${formattedComments} Comments
+                                </button>
+                                <button class="flex items-center gap-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded transition-colors text-xs font-semibold share-btn" data-title="${update.title}">
+                                    <i data-lucide="share-2" class="w-4 h-4"></i> Share
+                                </button>
+                                <button class="hover:text-primary transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 p-1 rounded" aria-label="Save">
+                                    <i data-lucide="bookmark" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Comment Section Mockup (Hidden initially) -->
+                        <div id="comments-${update.id}" class="hidden mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                            <div class="flex gap-3">
+                                <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 shrink-0 overflow-hidden">
+                                    <img src="https://ui-avatars.com/api/?name=User&background=random" alt="You">
+                                </div>
+                                <div class="flex-1">
+                                    <textarea rows="2" placeholder="What are your thoughts?" class="w-full bg-gray-50 dark:bg-navy border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none resize-none text-gray-900 dark:text-white transition-all"></textarea>
+                                    <div class="flex justify-end mt-2">
+                                        <button class="bg-primary text-white text-xs font-bold px-4 py-1.5 rounded-full opacity-50 cursor-not-allowed">Reply</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </article>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHTML);
+            });
+
+            // Re-initialize icons for newly added DOM elements
+            lucide.createIcons();
+
+            // Play sound if there is breaking news and sound is enabled
+            if (hasBreaking) {
+                // Short timeout to ensure DOM is ready and it feels like an event
+                setTimeout(() => playBreakingSound(), 300);
+            }
+        }
+
+        // --- Event Listeners ---
+        function bindEvents() {
+            // Tab Switching
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const target = e.currentTarget.getAttribute('data-target');
+                    if (state.tab === target) return; // already active
+
+                    // Update UI
+                    tabs.forEach(t => {
+                        t.classList.remove('active', 'bg-primary', 'text-white', 'shadow-md');
+                        t.classList.add('bg-gray-200', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
+                    });
+                    
+                    e.currentTarget.classList.add('active', 'bg-primary', 'text-white', 'shadow-md');
+                    e.currentTarget.classList.remove('bg-gray-200', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
+                    
+                    state.tab = target;
+                    
+                    // Add a tiny delay to simulate network/loading, looks better with transition
+                    const container = document.getElementById('feedContainer');
+                    container.style.opacity = '0';
+                    setTimeout(() => {
+                        renderFeed();
+                        container.style.opacity = '1';
+                    }, 150);
+                });
+            });
+
+            // Delegated events for dynamic cards
+            document.getElementById('feedContainer').addEventListener('click', (e) => {
+                
+                // Voting
+                const voteBtn = e.target.closest('.vote-btn');
+                if (voteBtn) {
+                    e.stopPropagation(); // prevent card click
+                    handleVote(voteBtn.dataset.id, voteBtn.dataset.type);
+                    return;
+                }
+
+                // Share
+                const shareBtn = e.target.closest('.share-btn');
+                if (shareBtn) {
+                    e.stopPropagation();
+                    handleShare(shareBtn.dataset.title);
+                    return;
+                }
+
+                // Toggle Comments
+                const commentBtn = e.target.closest('.toggle-comment');
+                if (commentBtn) {
+                    e.stopPropagation();
+                    const id = commentBtn.dataset.id;
+                    const commentSection = document.getElementById(`comments-${id}`);
+                    if (commentSection.classList.contains('hidden')) {
+                        commentSection.classList.remove('hidden');
+                        commentSection.classList.add('animate-slide-up');
+                    } else {
+                        commentSection.classList.add('hidden');
+                        commentSection.classList.remove('animate-slide-up');
+                    }
+                    return;
+                }
+            });
+        }
+
+        // --- Action Handlers ---
+        function handleVote(id, type) {
+            // Determine vote value: up = 1, down = -1
+            const val = type === 'up' ? 1 : -1;
+            const currentVote = state.votes[id] || 0;
+            
+            // Toggle logic: clicking same active button removes vote
+            if (currentVote === val) {
+                delete state.votes[id];
+            } else {
+                state.votes[id] = val;
+            }
+            
+            // Save state
+            localStorage.setItem('gf_votes', JSON.stringify(state.votes));
+            
+            // Re-render feed to reflect new numbers and colors easily
+            // In a real app, we'd surgically update the DOM to prevent full re-render, 
+            // but for this scale, re-rendering ensures consistency for mobile/desktop split.
+            // Let's do surgical update for better UX micro-interaction:
+            
+            updateVoteDOM(id);
+        }
+
+        function updateVoteDOM(id) {
+            const userVote = state.votes[id] || 0;
+            const item = updates.find(u => u.id === id);
+            const displayVotes = item.upvotes + userVote;
+            const formattedVotes = displayVotes > 999 ? (displayVotes/1000).toFixed(1) + 'k' : displayVotes;
+            
+            // Find both mobile and desktop instances if applicable, or single instance
+            const counts = document.querySelectorAll(`#vote-count-${id}`);
+            counts.forEach(countEl => {
+                countEl.textContent = formattedVotes;
+                countEl.className = `font-bold text-xs md:text-sm ${userVote === 1 ? 'text-primary' : (userVote === -1 ? 'text-accent' : 'text-gray-700 dark:text-gray-300')}`;
+                
+                // Update parent buttons
+                const container = countEl.parentElement;
+                const upBtn = container.querySelector('[data-type="up"]');
+                const downBtn = container.querySelector('[data-type="down"]');
+                
+                // Reset classes
+                upBtn.className = `vote-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${userVote === 1 ? 'vote-active-up' : 'text-gray-400'}`;
+                downBtn.className = `vote-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${userVote === -1 ? 'vote-active-down' : 'text-gray-400'}`;
+            });
+        }
+
+        function handleShare(title) {
+            const dummyUrl = `https://gameflowcentral.com/news/${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(dummyUrl).then(() => {
+                    showToast('Link copied to clipboard!');
+                }).catch(err => {
+                    // Fallback for iframe restrictions
+                    fallbackCopyTextToClipboard(dummyUrl);
+                });
+            } else {
+                fallbackCopyTextToClipboard(dummyUrl);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('Link copied to clipboard!');
+            } catch (err) {
+                showToast('Unable to copy link.');
+            }
+        }
+
+        // --- Toast Notification ---
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            toast.className = 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform translate-y-10 opacity-0 transition-all duration-300 pointer-events-auto';
+            toast.innerHTML = `
+                <div class="bg-primary/20 text-primary rounded-full p-1">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                </div>
+                <span class="text-sm font-medium">${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            lucide.createIcons({ root: toast });
+            
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            });
+            
+            // Remove after 3s
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    if (container.contains(toast)) {
+                        container.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+    </script>
+</body>
+      </html>
