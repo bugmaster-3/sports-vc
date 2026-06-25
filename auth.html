@@ -121,7 +121,7 @@
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+        import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
         import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
         const theme = localStorage.getItem('gf_theme') || 'dark';
@@ -239,11 +239,9 @@
                 try {
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     const user = userCredential.user;
-                    
-                    // Update Firebase Auth profile with the real name
-                    await user.updateProfile({ displayName: fullName });
-                    
-                    // Save to Firestore
+
+                    await updateProfile(user, { displayName: fullName });
+
                     await setDoc(doc(db, 'users', user.uid), {
                         username: username,
                         displayName: fullName,
@@ -257,6 +255,7 @@
                         followingCount: 0,
                         createdAt: new Date()
                     });
+
                     window.location.href = 'index.html';
                 } catch (error) {
                     if (error.code === 'auth/email-already-in-use') showError('This email is already registered.');
