@@ -122,7 +122,7 @@
     <script type="module">
         import { db, auth } from './firebase-config.js';
         import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-        import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
         const theme = localStorage.getItem('gf_theme') || 'dark';
         const html = document.documentElement;
@@ -196,9 +196,10 @@
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const userRef = doc(db, 'users', user.uid);
+                const userDoc = await getDoc(userRef);
                 if (!userDoc.exists()) {
-                    await setDoc(doc(db, 'users', user.uid), {
+                    await setDoc(userRef, {
                         username: user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, ''),
                         displayName: user.displayName || user.email.split('@')[0],
                         email: user.email,
@@ -209,7 +210,7 @@
                         following: [],
                         followersCount: 0,
                         followingCount: 0,
-                        createdAt: new Date()
+                        createdAt: serverTimestamp()
                     });
                 }
                 window.location.href = 'index.html';
@@ -239,9 +240,7 @@
                 try {
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     const user = userCredential.user;
-
                     await updateProfile(user, { displayName: fullName });
-
                     await setDoc(doc(db, 'users', user.uid), {
                         username: username,
                         displayName: fullName,
@@ -253,9 +252,8 @@
                         following: [],
                         followersCount: 0,
                         followingCount: 0,
-                        createdAt: new Date()
+                        createdAt: serverTimestamp()
                     });
-
                     window.location.href = 'index.html';
                 } catch (error) {
                     if (error.code === 'auth/email-already-in-use') showError('This email is already registered.');
