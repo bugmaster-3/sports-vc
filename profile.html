@@ -94,7 +94,7 @@
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { doc, collection, query, where, onSnapshot, getDocs, runTransaction, increment, arrayUnion, arrayRemove, orderBy, onSnapshot as onFirestoreSnapshot } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { doc, collection, query, where, onSnapshot, getDocs, runTransaction, increment, arrayUnion, arrayRemove, orderBy } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -249,7 +249,7 @@
                     ${isOwn ? 
                         `<a href="settings.html" class="bg-primary text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-primaryHover transition-colors">Edit Profile</a>`
                         :
-                        `<button id="followBtn" class="px-4 py-2 rounded-full text-sm font-semibold transition-colors ${isFollowing ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-primary hover:text-white'}">${isFollowing ? 'Following' : 'Follow'}</button>`
+                        `<button id="followBtn" class="px-4 py-2 rounded-full text-sm font-semibold transition-colors ${isFollowing ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-primary hover:text-white'}">${isFollowing ? 'Unfollow' : 'Follow'}</button>`
                     }
                     <button id="shareProfileBtn" class="px-4 py-2 rounded-full text-sm font-semibold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Share Profile</button>
                 </div>
@@ -289,9 +289,9 @@
             if (state.posts.length === 0) {
                 const message = state.isOwnProfile ? 
                     "You haven't made any posts yet!" : 
-                    "User has no posts yet!";
+                    "This user has no posts yet.";
                 const link = state.isOwnProfile ? 
-                    '<a href="makepost.html" class="text-primary hover:underline font-semibold">Make your first post</a>' : 
+                    '<a href="new.html" class="text-primary hover:underline font-semibold">Create your first post</a>' : 
                     '';
                 list.innerHTML = `
                     <div class="text-center py-8">
@@ -380,11 +380,11 @@
             return name.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2);
         }
 
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             state.currentUser = user;
             if (user) {
                 const userDocRef = doc(db, 'users', user.uid);
-                onFirestoreSnapshot(userDocRef, (snap) => {
+                onSnapshot(userDocRef, (snap) => {
                     if (snap.exists()) {
                         state.currentUserProfile = snap.data();
                         state.isOwnProfile = (state.currentUserProfile.username === usernameParam);
