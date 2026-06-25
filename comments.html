@@ -225,6 +225,7 @@
                         authorId: data.authorId,
                         authorName: data.authorName,
                         authorUsername: data.authorUsername,
+                        authorProfilePicture: data.authorProfilePicture || '',
                         likes: data.likes || 0,
                         createdAt: data.createdAt ? data.createdAt.toDate() : new Date()
                     });
@@ -250,14 +251,20 @@
                 div.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
                         <div class="flex items-center gap-2">
-                            <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-bold">${getInitials(comment.authorName)}</div>
+                            <div class="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                                ${comment.authorProfilePicture ? 
+                                    `<img src="${comment.authorProfilePicture}" alt="${comment.authorName}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` +
+                                    `<span class="text-[10px] font-bold text-gray-700 dark:text-gray-300" style="display:none;">${getInitials(comment.authorName)}</span>`
+                                    : `<span class="text-[10px] font-bold text-gray-700 dark:text-gray-300">${getInitials(comment.authorName)}</span>`
+                                }
+                            </div>
                             <a href="profile.html?u=${comment.authorUsername || comment.authorId}" class="text-sm font-medium hover:underline">${comment.authorName}</a>
                             <span class="text-xs text-gray-500">${timeAgo}</span>
                         </div>
                     </div>
                     <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">${escapeHtml(comment.content)}</p>
                     <div class="flex items-center gap-4 text-sm text-gray-500">
-                        <button class="like-btn flex items-center gap-1 hover:text-primary transition-colors ${liked ? 'like-active' : ''}" data-commentid="${comment.id}">
+                        <button class="like-btn flex items-center gap-1 transition-colors ${liked ? 'like-active' : 'hover:text-primary'}" data-commentid="${comment.id}">
                             <i data-lucide="heart" class="w-4 h-4 ${liked ? 'fill-primary' : ''}"></i> <span class="like-count">${comment.likes}</span>
                         </button>
                     </div>
@@ -317,6 +324,7 @@
                 authorId: state.currentUser.uid,
                 authorName: state.currentUser.displayName || 'User',
                 authorUsername: state.currentUser.email ? state.currentUser.email.split('@')[0] : 'user',
+                authorProfilePicture: state.currentUser.photoURL || '',
                 likes: 0,
                 createdAt: new Date()
             };
@@ -330,6 +338,7 @@
                     authorId: state.currentUser.uid,
                     authorName: state.currentUser.displayName || 'User',
                     authorUsername: state.currentUser.email ? state.currentUser.email.split('@')[0] : 'user',
+                    authorProfilePicture: state.currentUser.photoURL || '',
                     likes: 0,
                     createdAt: serverTimestamp()
                 });
