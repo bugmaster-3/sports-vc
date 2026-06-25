@@ -196,9 +196,7 @@
                     newLikes[commentId] = snap.exists();
                 });
                 state.commentLikes = { ...state.commentLikes, ...newLikes };
-            } catch (e) {
-                // fallback: keep empty if fetch fails
-            }
+            } catch (e) {}
             state.commentsLoaded = true;
             renderComments();
         }
@@ -344,7 +342,6 @@
             const uid = state.currentUser.uid;
             const currentlyLiked = state.commentLikes[commentId] || false;
 
-            // Optimistic UI update
             state.commentLikes[commentId] = !currentlyLiked;
             const comment = state.comments.find(c => c.id === commentId);
             if (comment) comment.likes += currentlyLiked ? -1 : 1;
@@ -366,7 +363,6 @@
                     transaction.update(commentRef, { likes: currentLikes + 1 });
                 }
             }).catch(() => {
-                // Revert on failure
                 state.commentLikes[commentId] = currentlyLiked;
                 if (comment) comment.likes += currentlyLiked ? 1 : -1;
                 renderComments();
@@ -443,6 +439,7 @@
         applyTheme();
         listenToPost();
         listenToComments();
+        renderComments(); // <-- show skeleton immediately
         lucide.createIcons();
     </script>
 </body>
