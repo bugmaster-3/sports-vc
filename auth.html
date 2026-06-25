@@ -191,17 +191,14 @@
         signInTab.addEventListener('click', () => toggleMode(false));
         signUpTab.addEventListener('click', () => toggleMode(true));
 
-        async function createUserDocument(user, displayName = null, username = null, photoURL = null) {
+        async function createUserDocument(user, displayName, username, photoURL) {
             const userDocRef = doc(db, 'users', user.uid);
             const existingDoc = await getDoc(userDocRef);
             if (!existingDoc.exists()) {
-                const name = displayName || user.displayName || user.email.split('@')[0];
-                const uname = username || user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
-                const picture = photoURL || user.photoURL || '';
                 await setDoc(userDocRef, {
-                    username: uname,
-                    displayName: name,
-                    profilePicture: picture,
+                    username: username,
+                    displayName: displayName,
+                    profilePicture: photoURL || '',
                     bio: '',
                     followers: [],
                     following: [],
@@ -218,10 +215,15 @@
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
-                await createUserDocument(user, user.displayName, null, user.photoURL);
+                const displayName = user.displayName || user.email.split('@')[0];
+                const username = user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
+                const photoURL = user.photoURL || '';
+                await createUserDocument(user, displayName, username, photoURL);
                 window.location.href = 'index.html';
             } catch (error) {
-                if (error.code !== 'auth/popup-closed-by-user') showToast('Google sign-in failed.');
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    showToast('Google sign-in failed. Please try again.');
+                }
             }
         });
 
@@ -260,7 +262,9 @@
                     const user = userCredential.user;
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     if (!userDoc.exists()) {
-                        await createUserDocument(user, user.displayName || email.split('@')[0], email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, ''), '');
+                        const fallbackName = user.displayName || email.split('@')[0];
+                        const fallbackUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
+                        await createUserDocument(user, fallbackName, fallbackUsername, user.photoURL || '');
                     }
                     window.location.href = 'index.html';
                 } catch (error) {
