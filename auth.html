@@ -16,11 +16,9 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#FF5A1F',
-                        primaryHover: '#E04A15',
+                        primary: '#FF5A1F', primaryHover: '#E04A15',
                         navy: { DEFAULT: '#0B0F19', card: '#1A1F2B', hover: '#242B3B' },
-                        accent: '#3B82F6',
-                        lightbg: '#F9FAFB',
+                        accent: '#3B82F6', lightbg: '#F9FAFB',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -32,12 +30,8 @@
     </script>
     <style type="text/tailwindcss">
         @layer utilities {
-            .glass-header {
-                @apply bg-white/80 dark:bg-navy/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800;
-            }
-            .bg-mesh-dark {
-                background-image: radial-gradient(at 0% 0%, rgba(11,15,25,1) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(26,31,43,0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(11,15,25,1) 0, transparent 50%);
-            }
+            .glass-header { @apply bg-white/80 dark:bg-navy/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800; }
+            .bg-mesh-dark { background-image: radial-gradient(at 0% 0%, rgba(11,15,25,1) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(26,31,43,0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(11,15,25,1) 0, transparent 50%); }
         }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -51,9 +45,7 @@
                 <div class="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform">
                     <i data-lucide="zap" class="w-5 h-5 fill-white"></i>
                 </div>
-                <span class="font-display text-2xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 hidden sm:block">
-                    GameFlow <span class="text-primary">Central</span>
-                </span>
+                <span class="font-display text-2xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 hidden sm:block">GameFlow <span class="text-primary">Central</span></span>
             </a>
             <div class="flex items-center gap-3">
                 <button id="themeToggle" aria-label="Toggle dark mode" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-navy-card text-gray-500 dark:text-gray-400 transition-colors">
@@ -94,6 +86,10 @@
                 </div>
 
                 <form id="emailForm" class="space-y-4">
+                    <div id="fullNameField" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+                        <input type="text" id="fullName" class="w-full bg-gray-50 dark:bg-navy border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="John Doe">
+                    </div>
                     <div id="usernameField" class="hidden">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
                         <input type="text" id="username" class="w-full bg-gray-50 dark:bg-navy border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="coolfan123" autocomplete="username">
@@ -131,13 +127,8 @@
         const theme = localStorage.getItem('gf_theme') || 'dark';
         const html = document.documentElement;
         const themeIcon = document.getElementById('themeIcon');
-        if (theme === 'dark') {
-            html.classList.add('dark');
-            themeIcon.setAttribute('data-lucide', 'sun');
-        } else {
-            html.classList.remove('dark');
-            themeIcon.setAttribute('data-lucide', 'moon');
-        }
+        if (theme === 'dark') { html.classList.add('dark'); themeIcon.setAttribute('data-lucide', 'sun'); }
+        else { html.classList.remove('dark'); themeIcon.setAttribute('data-lucide', 'moon'); }
 
         document.getElementById('themeToggle').addEventListener('click', () => {
             const isDark = html.classList.toggle('dark');
@@ -165,11 +156,12 @@
         const signUpTab = document.getElementById('signUpTab');
         const submitBtn = document.getElementById('submitBtn');
         const formSubtitle = document.getElementById('formSubtitle');
+        const fullNameField = document.getElementById('fullNameField');
         const usernameField = document.getElementById('usernameField');
         const confirmPasswordField = document.getElementById('confirmPasswordField');
+        const socialButtons = document.getElementById('socialButtons');
         const emailForm = document.getElementById('emailForm');
         const errorMessage = document.getElementById('errorMessage');
-        const socialButtons = document.getElementById('socialButtons');
 
         function toggleMode(signUp) {
             isSignUp = signUp;
@@ -178,6 +170,7 @@
                 signInTab.className = 'flex-1 py-2 text-sm font-semibold rounded-md transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
                 submitBtn.textContent = 'Create Account';
                 formSubtitle.textContent = 'Join the community';
+                fullNameField.classList.remove('hidden');
                 usernameField.classList.remove('hidden');
                 confirmPasswordField.classList.remove('hidden');
                 socialButtons.classList.add('hidden');
@@ -186,6 +179,7 @@
                 signUpTab.className = 'flex-1 py-2 text-sm font-semibold rounded-md transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
                 submitBtn.textContent = 'Sign In';
                 formSubtitle.textContent = 'Sign in to your account';
+                fullNameField.classList.add('hidden');
                 usernameField.classList.add('hidden');
                 confirmPasswordField.classList.add('hidden');
                 socialButtons.classList.remove('hidden');
@@ -220,15 +214,11 @@
                 }
                 window.location.href = 'index.html';
             } catch (error) {
-                if (error.code !== 'auth/popup-closed-by-user') {
-                    showToast('Google sign-in failed. Please try again.');
-                }
+                if (error.code !== 'auth/popup-closed-by-user') showToast('Google sign-in failed.');
             }
         });
 
-        document.getElementById('appleSignIn').addEventListener('click', () => {
-            showToast('Apple Sign-In coming soon!');
-        });
+        document.getElementById('appleSignIn').addEventListener('click', () => showToast('Apple Sign-In coming soon!'));
 
         emailForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -237,26 +227,21 @@
             const password = document.getElementById('password').value;
 
             if (isSignUp) {
+                const fullName = document.getElementById('fullName').value.trim();
                 const username = document.getElementById('username').value.trim().toLowerCase();
                 const confirmPassword = document.getElementById('confirmPassword').value;
-                if (!username || username.length < 3) {
-                    showError('Username must be at least 3 characters.');
-                    return;
-                }
-                if (!/^[a-z0-9_]+$/.test(username)) {
-                    showError('Username can only contain letters, numbers, and underscores.');
-                    return;
-                }
-                if (password !== confirmPassword) {
-                    showError('Passwords do not match.');
-                    return;
-                }
+
+                if (!fullName) { showError('Please enter your full name.'); return; }
+                if (!username || username.length < 3) { showError('Username must be at least 3 characters.'); return; }
+                if (!/^[a-z0-9_]+$/.test(username)) { showError('Username can only contain letters, numbers, and underscores.'); return; }
+                if (password !== confirmPassword) { showError('Passwords do not match.'); return; }
+
                 try {
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     const user = userCredential.user;
                     await setDoc(doc(db, 'users', user.uid), {
                         username: username,
-                        displayName: username,
+                        displayName: fullName,
                         email: email,
                         profilePicture: '',
                         bio: '',
