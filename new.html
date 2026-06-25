@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Post – GameFlow Central</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF5A1F',
+                        primaryHover: '#E04A15',
+                        navy: { DEFAULT: '#0B0F19', card: '#1A1F2B', hover: '#242B3B' },
+                        accent: '#3B82F6',
+                        lightbg: '#F9FAFB',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Bebas Neue', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-header { @apply bg-white/80 dark:bg-navy/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800; }
+            .bg-mesh-dark { background-image: radial-gradient(at 0% 0%, rgba(11,15,25,1) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(26,31,43,0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(11,15,25,1) 0, transparent 50%); }
+        }
+    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-lightbg dark:bg-navy text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-300 min-h-screen flex flex-col">
+    <div class="fixed inset-0 z-[-1] opacity-50 dark:opacity-100 bg-mesh-dark pointer-events-none"></div>
+
+    <header class="sticky top-0 z-50 glass-header transition-colors duration-300">
+        <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+            <button onclick="history.back()" class="p-1.5 -ml-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors" aria-label="Go back">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </button>
+            <h1 class="font-bold text-lg">New Post</h1>
+            <div class="w-8"></div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-2xl w-full mx-auto px-4 py-6">
+        <form id="postForm" class="space-y-5">
+            <div>
+                <label class="block text-sm font-medium mb-1">Title *</label>
+                <input type="text" id="title" required class="w-full bg-gray-50 dark:bg-navy border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none" placeholder="Post title">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Image</label>
+                <input type="file" id="imageInput" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primaryHover file:transition-colors">
+                <div id="imagePreview" class="mt-2 hidden">
+                    <img id="previewImg" class="rounded-lg max-h-48 object-cover">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Category *</label>
+                <select id="category" required class="w-full bg-gray-50 dark:bg-navy border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+                    <option value="">Select category</option>
+                    <option value="NBA">NBA</option>
+                    <option value="NFL">NFL</option>
+                    <option value="Soccer">Soccer</option>
+                    <option value="UFC">UFC</option>
+                    <option value="Tennis">Tennis</option>
+                    <option value="Rugby">Rugby</option>
+                    <option value="Wrestling">Wrestling</option>
+                    <option value="F1">F1</option>
+                    <option value="MLB">MLB</option>
+                    <option value="Boxing">Boxing</option>
+                    <option value="Golf">Golf</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Excerpt</label>
+                <textarea id="excerpt" rows="2" class="w-full bg-gray-50 dark:bg-navy border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none" placeholder="Short description (optional)"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Content (Markdown supported)</label>
+                <textarea id="content" rows="8" class="w-full bg-gray-50 dark:bg-navy border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none" placeholder="Write your post..."></textarea>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <input type="checkbox" id="isBreaking" class="rounded border-gray-300 dark:border-gray-700 text-primary focus:ring-primary">
+                <label for="isBreaking" class="text-sm font-medium">Breaking News</label>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-primary hover:bg-primaryHover text-white font-semibold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Publish Post
+            </button>
+        </form>
+    </main>
+
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script type="module">
+        import { db, auth } from './firebase-config.js';
+        import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+        const categoryColors = {
+            'NBA': 'bg-orange-500',
+            'NFL': 'bg-blue-600',
+            'Soccer': 'bg-green-600',
+            'UFC': 'bg-red-600',
+            'Tennis': 'bg-yellow-500',
+            'Rugby': 'bg-green-700',
+            'Wrestling': 'bg-yellow-600',
+            'F1': 'bg-red-500',
+            'MLB': 'bg-blue-800',
+            'Boxing': 'bg-slate-800',
+            'Golf': 'bg-green-700'
+        };
+
+        const theme = localStorage.getItem('gf_theme') || 'dark';
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform translate-y-10 opacity-0 transition-all duration-300 pointer-events-auto';
+            toast.innerHTML = `<i data-lucide="info" class="w-4 h-4 text-primary"></i><span class="text-sm font-medium">${msg}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons({ root: toast });
+            requestAnimationFrame(() => toast.classList.remove('translate-y-10', 'opacity-0'));
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => { if (container.contains(toast)) container.removeChild(toast); }, 300);
+            }, 3000);
+        }
+
+        let currentUser = null;
+        let currentUserProfile = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            currentUser = user;
+            const userDocRef = doc(db, 'users', user.uid);
+            const userSnap = await getDoc(userDocRef);
+            if (userSnap.exists()) {
+                currentUserProfile = userSnap.data();
+            } else {
+                currentUserProfile = {
+                    displayName: user.displayName || 'User',
+                    username: user.email.split('@')[0],
+                    profilePicture: user.photoURL || ''
+                };
+            }
+        });
+
+        document.getElementById('imageInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                document.getElementById('previewImg').src = ev.target.result;
+                document.getElementById('imagePreview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('postForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn.disabled) return;
+
+            if (!currentUser || !currentUserProfile) {
+                showToast('You must be signed in and have a profile.');
+                return;
+            }
+
+            const title = document.getElementById('title').value.trim();
+            const category = document.getElementById('category').value;
+            const excerpt = document.getElementById('excerpt').value.trim();
+            const content = document.getElementById('content').value.trim();
+            const isBreaking = document.getElementById('isBreaking').checked;
+
+            if (!title || !category) {
+                showToast('Title and category are required.');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Publishing...';
+
+            try {
+                const imageFile = document.getElementById('imageInput').files[0];
+                let imageBase64 = '';
+                if (imageFile) {
+                    imageBase64 = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => resolve(ev.target.result);
+                        reader.readAsDataURL(imageFile);
+                    });
+                }
+
+                const authorInitials = currentUserProfile.displayName
+                    ? currentUserProfile.displayName.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2)
+                    : '?';
+
+                const postData = {
+                    title,
+                    image: imageBase64,
+                    description: content,
+                    excerpt: excerpt || content.substring(0, 150),
+                    category,
+                    color: categoryColors[category] || 'bg-gray-500',
+                    authorId: currentUser.uid,
+                    authorName: currentUserProfile.displayName,
+                    authorUsername: currentUserProfile.username,
+                    authorInitials,
+                    createdAt: serverTimestamp(),
+                    isBreaking,
+                    tab: 'latest',
+                    upvotes: 0,
+                    downvotes: 0,
+                    commentCount: 0
+                };
+
+                const docRef = await addDoc(collection(db, 'posts'), postData);
+                window.location.href = `post.html?p=${docRef.id}`;
+            } catch (error) {
+                showToast('Failed to publish post. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Publish Post';
+            }
+        });
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
