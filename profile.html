@@ -207,7 +207,7 @@
                     renderProfileHeader();
                     setMetaTags(state.profileUser);
                 }
-            }, () => {});
+            });
 
             const postsQuery = query(collection(db, 'posts'), where('authorId', '==', state.profileUserId));
             onSnapshot(postsQuery, (snap) => {
@@ -431,7 +431,7 @@
                     } else {
                         fetchProfileUser();
                     }
-                }, () => { fetchProfileUser(); });
+                });
             } else {
                 state.isOwnProfile = false;
                 state.isFollowing = false;
