@@ -25,24 +25,16 @@
                         sans: ['Inter', 'sans-serif'],
                         display: ['Bebas Neue', 'sans-serif'],
                     },
-                    animation: {
-                        'slide-up': 'slideUp 0.3s ease-out forwards',
-                    },
-                    keyframes: {
-                        slideUp: { '0%': { transform: 'translateY(10px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
-                    }
+                    animation: { 'slide-up': 'slideUp 0.3s ease-out forwards' },
+                    keyframes: { slideUp: { '0%': { transform: 'translateY(10px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } } }
                 }
             }
         }
     </script>
     <style type="text/tailwindcss">
         @layer utilities {
-            .glass-header {
-                @apply bg-white/80 dark:bg-navy/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800;
-            }
-            .bg-mesh-dark {
-                background-image: radial-gradient(at 0% 0%, rgba(11,15,25,1) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(26,31,43,0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(11,15,25,1) 0, transparent 50%);
-            }
+            .glass-header { @apply bg-white/80 dark:bg-navy/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800; }
+            .bg-mesh-dark { background-image: radial-gradient(at 0% 0%, rgba(11,15,25,1) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(26,31,43,0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(11,15,25,1) 0, transparent 50%); }
             .like-active { @apply text-primary fill-primary; }
         }
     </style>
@@ -57,9 +49,7 @@
                 <div class="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform">
                     <i data-lucide="zap" class="w-5 h-5 fill-white"></i>
                 </div>
-                <span class="font-display text-2xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 hidden sm:block">
-                    GameFlow <span class="text-primary">Central</span>
-                </span>
+                <span class="font-display text-2xl tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 hidden sm:block">GameFlow <span class="text-primary">Central</span></span>
             </a>
             <div class="flex items-center gap-3">
                 <button id="themeToggle" aria-label="Toggle dark mode" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-navy-card text-gray-500 dark:text-gray-400 transition-colors">
@@ -98,8 +88,8 @@
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { collection, doc, onSnapshot, addDoc, deleteDoc, runTransaction, serverTimestamp, getDoc, setDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+        import { collection, doc, onSnapshot, addDoc, deleteDoc, runTransaction, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
         const urlParams = new URLSearchParams(window.location.search);
         const postId = urlParams.get('p');
@@ -109,7 +99,6 @@
             currentUser: null,
             post: null,
             comments: [],
-            following: [],
             commentLikes: {},
             theme: localStorage.getItem('gf_theme') || 'dark'
         };
@@ -119,10 +108,10 @@
             const icon = document.getElementById('themeIcon');
             if (state.theme === 'dark') {
                 html.classList.add('dark');
-                if (icon) icon.setAttribute('data-lucide', 'sun');
+                icon?.setAttribute('data-lucide', 'sun');
             } else {
                 html.classList.remove('dark');
-                if (icon) icon.setAttribute('data-lucide', 'moon');
+                icon?.setAttribute('data-lucide', 'moon');
             }
             if (window.lucide) lucide.createIcons();
         }
@@ -179,34 +168,20 @@
 
         onAuthStateChanged(auth, (user) => {
             updateAuthUI(user);
-            if (user) {
-                listenToFollowing(user.uid);
-                listenToCommentLikes(user.uid);
-            } else {
-                state.following = [];
-                state.commentLikes = {};
-                renderComments();
-            }
+            if (user) listenToCommentLikes(user.uid);
+            else state.commentLikes = {};
         });
-
-        function listenToFollowing(uid) {
-            const userRef = doc(db, 'users', uid);
-            onSnapshot(userRef, (snap) => {
-                if (snap.exists()) state.following = snap.data().following || [];
-                else state.following = [];
-                renderComments();
-            });
-        }
 
         function listenToCommentLikes(uid) {
             if (!postId) return;
-            const likesRef = collection(db, 'posts', postId, 'comments');
-            onSnapshot(likesRef, (snap) => {
-                snap.docChanges().forEach(change => {
-                    const commentId = change.doc.id;
-                    const likesSub = collection(db, 'posts', postId, 'comments', commentId, 'likes');
-                    onSnapshot(likesSub, (likesSnap) => {
-                        state.commentLikes[commentId] = likesSnap.docs.some(d => d.id === uid);
+            const commentsRef = collection(db, 'posts', postId, 'comments');
+            onSnapshot(commentsRef, (snap) => {
+                const newLikes = {};
+                snap.forEach(docSnap => {
+                    const likesSub = docSnap.ref.collection('likes');
+                    likesSub.onSnapshot(likesSnap => {
+                        newLikes[docSnap.id] = likesSnap.docs.some(d => d.id === uid);
+                        state.commentLikes = { ...state.commentLikes, ...newLikes };
                         renderComments();
                     });
                 });
@@ -241,10 +216,10 @@
             if (!postId) return;
             const commentsRef = collection(db, 'posts', postId, 'comments');
             onSnapshot(commentsRef, (snap) => {
-                state.comments = [];
+                const freshComments = [];
                 snap.forEach(doc => {
                     const data = doc.data();
-                    state.comments.push({
+                    freshComments.push({
                         id: doc.id,
                         content: data.content,
                         authorId: data.authorId,
@@ -254,7 +229,8 @@
                         createdAt: data.createdAt ? data.createdAt.toDate() : new Date()
                     });
                 });
-                state.comments.sort((a, b) => b.createdAt - a.createdAt);
+                freshComments.sort((a, b) => b.createdAt - a.createdAt);
+                state.comments = freshComments;
                 renderComments();
             });
         }
@@ -263,16 +239,12 @@
             const list = document.getElementById('commentsList');
             list.innerHTML = '';
             if (state.comments.length === 0) {
-                list.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-sm">No comments yet.</p>';
+                list.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-sm">No comments yet. Be the first to comment.</p>';
                 return;
             }
             state.comments.forEach(comment => {
                 const liked = state.commentLikes[comment.id] || false;
-                const isFollowing = state.following.includes(comment.authorId);
-                const isOwn = state.currentUser && state.currentUser.uid === comment.authorId;
-                const likeCount = comment.likes;
                 const timeAgo = getTimeAgo(comment.createdAt);
-
                 const div = document.createElement('div');
                 div.className = 'bg-white dark:bg-navy-card rounded-xl p-4 border border-gray-200 dark:border-gray-800';
                 div.innerHTML = `
@@ -282,100 +254,78 @@
                             <a href="profile.html?u=${comment.authorUsername || comment.authorId}" class="text-sm font-medium hover:underline">${comment.authorName}</a>
                             <span class="text-xs text-gray-500">${timeAgo}</span>
                         </div>
-                        ${!isOwn && state.currentUser ? `
-                            <button class="follow-btn text-xs font-semibold px-3 py-1 rounded-full transition-colors ${isFollowing ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-primary hover:text-white'}" data-userid="${comment.authorId}">
-                                ${isFollowing ? 'Following' : 'Follow'}
-                            </button>
-                        ` : ''}
                     </div>
                     <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">${escapeHtml(comment.content)}</p>
                     <div class="flex items-center gap-4 text-sm text-gray-500">
                         <button class="like-btn flex items-center gap-1 hover:text-primary transition-colors ${liked ? 'like-active' : ''}" data-commentid="${comment.id}">
-                            <i data-lucide="heart" class="w-4 h-4 ${liked ? 'fill-primary' : ''}"></i> ${likeCount}
+                            <i data-lucide="heart" class="w-4 h-4 ${liked ? 'fill-primary' : ''}"></i> <span class="like-count">${comment.likes}</span>
                         </button>
                     </div>
                 `;
                 list.appendChild(div);
             });
             lucide.createIcons();
-            attachCommentListeners();
-        }
-
-        function attachCommentListeners() {
             document.querySelectorAll('.like-btn').forEach(btn => {
-                btn.addEventListener('click', () => handleLike(btn.dataset.commentid));
-            });
-            document.querySelectorAll('.follow-btn').forEach(btn => {
-                btn.addEventListener('click', () => handleFollow(btn.dataset.userid));
+                btn.addEventListener('click', () => handleLikeInstant(btn.dataset.commentid));
             });
         }
 
-        async function handleLike(commentId) {
-            if (!state.currentUser) {
-                window.location.href = 'auth.html';
-                return;
-            }
+        function handleLikeInstant(commentId) {
+            if (!state.currentUser) { window.location.href = 'auth.html'; return; }
             const uid = state.currentUser.uid;
+            const currentlyLiked = state.commentLikes[commentId] || false;
+
+            // Optimistic UI update
+            state.commentLikes[commentId] = !currentlyLiked;
+            const comment = state.comments.find(c => c.id === commentId);
+            if (comment) comment.likes += currentlyLiked ? -1 : 1;
+            renderComments();
+
             const likeRef = doc(db, 'posts', postId, 'comments', commentId, 'likes', uid);
             const commentRef = doc(db, 'posts', postId, 'comments', commentId);
 
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const likeSnap = await transaction.get(likeRef);
-                    const commentSnap = await transaction.get(commentRef);
-                    if (!commentSnap.exists()) return;
-                    const currentLikes = commentSnap.data().likes || 0;
-                    if (likeSnap.exists()) {
-                        transaction.delete(likeRef);
-                        transaction.update(commentRef, { likes: currentLikes - 1 });
-                    } else {
-                        transaction.set(likeRef, { createdAt: serverTimestamp() });
-                        transaction.update(commentRef, { likes: currentLikes + 1 });
-                    }
-                });
-            } catch (e) {
-                showToast('Failed to update like');
-            }
-        }
-
-        async function handleFollow(targetUid) {
-            if (!state.currentUser) {
-                window.location.href = 'auth.html';
-                return;
-            }
-            const myUid = state.currentUser.uid;
-            if (myUid === targetUid) return;
-            const myRef = doc(db, 'users', myUid);
-            const targetRef = doc(db, 'users', targetUid);
-
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const mySnap = await transaction.get(myRef);
-                    const targetSnap = await transaction.get(targetRef);
-                    if (!mySnap.exists() || !targetSnap.exists()) return;
-
-                    const myFollowing = mySnap.data().following || [];
-                    const targetFollowers = targetSnap.data().followers || [];
-
-                    if (myFollowing.includes(targetUid)) {
-                        transaction.update(myRef, { following: arrayRemove(targetUid), followingCount: increment(-1) });
-                        transaction.update(targetRef, { followers: arrayRemove(myUid), followersCount: increment(-1) });
-                    } else {
-                        transaction.update(myRef, { following: arrayUnion(targetUid), followingCount: increment(1) });
-                        transaction.update(targetRef, { followers: arrayUnion(myUid), followersCount: increment(1) });
-                    }
-                });
-            } catch (e) {
-                showToast('Follow action failed');
-            }
+            runTransaction(db, async (transaction) => {
+                const likeSnap = await transaction.get(likeRef);
+                const commentSnap = await transaction.get(commentRef);
+                if (!commentSnap.exists()) return;
+                const currentLikes = commentSnap.data().likes || 0;
+                if (likeSnap.exists()) {
+                    transaction.delete(likeRef);
+                    transaction.update(commentRef, { likes: currentLikes - 1 });
+                } else {
+                    transaction.set(likeRef, { createdAt: serverTimestamp() });
+                    transaction.update(commentRef, { likes: currentLikes + 1 });
+                }
+            }).catch(() => {
+                // Revert on failure
+                state.commentLikes[commentId] = currentlyLiked;
+                if (comment) comment.likes += currentlyLiked ? 1 : -1;
+                renderComments();
+                showToast('Like failed. Please try again.');
+            });
         }
 
         document.getElementById('submitComment').addEventListener('click', async () => {
             const input = document.getElementById('commentInput');
             const content = input.value.trim();
             if (!content || !state.currentUser) return;
+
+            const tempId = 'temp-' + Date.now();
+            const newComment = {
+                id: tempId,
+                content,
+                authorId: state.currentUser.uid,
+                authorName: state.currentUser.displayName || 'User',
+                authorUsername: state.currentUser.email ? state.currentUser.email.split('@')[0] : 'user',
+                likes: 0,
+                createdAt: new Date()
+            };
+            state.comments.unshift(newComment);
+            renderComments();
+            input.value = '';
+
             try {
-                await addDoc(collection(db, 'posts', postId, 'comments'), {
+                const docRef = await addDoc(collection(db, 'posts', postId, 'comments'), {
                     content,
                     authorId: state.currentUser.uid,
                     authorName: state.currentUser.displayName || 'User',
@@ -383,9 +333,12 @@
                     likes: 0,
                     createdAt: serverTimestamp()
                 });
-                input.value = '';
+                state.comments = state.comments.map(c => c.id === tempId ? { ...c, id: docRef.id } : c);
+                renderComments();
             } catch (e) {
-                showToast('Failed to post comment');
+                state.comments = state.comments.filter(c => c.id !== tempId);
+                renderComments();
+                showToast('Failed to post comment.');
             }
         });
 
