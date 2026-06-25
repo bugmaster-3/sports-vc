@@ -93,7 +93,7 @@
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { doc, collection, query, where, onSnapshot, getDocs, runTransaction, increment, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { doc, collection, query, where, onSnapshot, getDocs, runTransaction, increment, arrayUnion, arrayRemove, orderBy } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -110,8 +110,6 @@
             postsLoaded: false,
             theme: localStorage.getItem('gf_theme') || 'dark'
         };
-
-        applyTheme();
 
         function applyTheme() {
             const html = document.documentElement;
@@ -133,6 +131,7 @@
             }, 3000);
         }
 
+        // More menu toggle
         document.getElementById('moreBtn').addEventListener('click', () => {
             const menu = document.getElementById('moreMenu');
             menu.classList.toggle('opacity-0'); menu.classList.toggle('pointer-events-none');
@@ -146,27 +145,22 @@
             }
         });
 
+        // Fetch user by username
         async function fetchProfileUser() {
-            const usernameLower = usernameParam.toLowerCase().trim();
-            const q = query(collection(db, 'users'), where('username', '==', usernameLower));
-            try {
-                const snap = await getDocs(q);
-                if (snap.empty) {
-                    document.getElementById('profileContent').innerHTML = '<p class="text-center text-gray-500 dark:text-gray-400 py-10">User not found.</p>';
-                    return;
-                }
-                const userDoc = snap.docs[0];
-                state.profileUserId = userDoc.id;
-                state.profileUser = userDoc.data();
-                document.getElementById('reportLink').href = `report.html?u=${state.profileUser.username}`;
-                setupRealtimeListeners();
-            } catch (err) {
-                console.error('Failed to fetch user:', err);
-                document.getElementById('profileContent').innerHTML = '<p class="text-center text-gray-500 dark:text-gray-400 py-10">Error loading user.</p>';
+            const q = query(collection(db, 'users'), where('username', '==', usernameParam));
+            const snap = await getDocs(q);
+            if (snap.empty) {
+                document.getElementById('profileContent').innerHTML = '<p class="text-center text-gray-500">User not found.</p>';
+                return;
             }
+            const userDoc = snap.docs[0];
+            state.profileUserId = userDoc.id;
+            state.profileUser = userDoc.data();
+            setupRealtimeListeners();
         }
 
         function setupRealtimeListeners() {
+            // Listen to user doc for up-to-date follow counts etc.
             const userRef = doc(db, 'users', state.profileUserId);
             onSnapshot(userRef, (snap) => {
                 if (snap.exists()) {
@@ -175,13 +169,14 @@
                 }
             });
 
-            const postsQuery = query(collection(db, 'posts'), where('authorId', '==', state.profileUserId));
+            // Listen to posts by this user
+            const postsQuery = query(collection(db, 'posts'), where('authorId', '==', state.profileUserId), orderBy('createdAt', 'desc'));
             onSnapshot(postsQuery, (snap) => {
                 const posts = [];
-                snap.forEach(docSnap => {
-                    const data = docSnap.data();
+                snap.forEach(doc => {
+                    const data = doc.data();
                     posts.push({
-                        id: docSnap.id,
+                        id: doc.id,
                         title: data.title,
                         excerpt: data.excerpt,
                         category: data.category,
@@ -192,7 +187,6 @@
                         commentCount: data.commentCount || 0,
                     });
                 });
-                posts.sort((a, b) => b.createdAt - a.createdAt);
                 state.posts = posts;
                 state.postsLoaded = true;
                 renderPosts();
@@ -201,7 +195,6 @@
 
         function renderProfileHeader() {
             const container = document.getElementById('profileContent');
-            if (!state.profileUser) return;
             const user = state.profileUser;
             const isOwn = state.isOwnProfile;
             const isFollowing = state.isFollowing;
@@ -216,9 +209,9 @@
                         }
                     </div>
                     <div class="flex-1 text-center sm:text-left">
-                        <h1 class="text-xl font-bold">${escapeHtml(user.displayName)}</h1>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">@${escapeHtml(user.username)}</p>
-                        <p class="text-sm mt-2 whitespace-pre-line">${escapeHtml(user.bio || '')}</p>
+                        <h1 class="text-xl font-bold">${user.displayName}</h1>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">@${user.username}</p>
+                        <p class="text-sm mt-2">${user.bio || ''}</p>
                         <div class="flex gap-4 mt-3 text-sm">
                             <span><strong>${user.followersCount || 0}</strong> followers</span>
                             <span><strong>${user.followingCount || 0}</strong> following</span>
@@ -235,11 +228,15 @@
                 </div>
             `;
 
+            // Update report link
+            document.getElementById('reportLink').href = `report.html?u=${user.username}`;
+
+            // Bind events
             if (!isOwn) {
                 document.getElementById('followBtn').addEventListener('click', handleFollow);
             }
             document.getElementById('shareProfileBtn').addEventListener('click', () => {
-                const url = `${window.location.origin}/profile.html?u=${encodeURIComponent(user.username)}`;
+                const url = `${window.location.origin}/profile.html?u=${user.username}`;
                 navigator.clipboard.writeText(url).then(() => showToast('Profile link copied!'));
             });
         }
@@ -247,6 +244,7 @@
         function renderPosts() {
             const list = document.getElementById('postsList');
             if (!state.postsLoaded) {
+                // Show skeleton
                 list.innerHTML = '';
                 for (let i = 0; i < 3; i++) {
                     list.innerHTML += `
@@ -291,11 +289,11 @@
                 div.innerHTML = `
                     <a href="post.html?p=${post.id}" class="block">
                         <div class="flex justify-between items-start mb-1">
-                            <span class="text-xs font-semibold text-primary">${escapeHtml(post.category)}</span>
+                            <span class="text-xs font-semibold text-primary">${post.category}</span>
                             <span class="text-xs text-gray-500">${timeAgo}</span>
                         </div>
-                        <h3 class="font-semibold mb-1">${escapeHtml(post.title)}</h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">${escapeHtml(post.excerpt || '')}</p>
+                        <h3 class="font-semibold mb-1">${post.title}</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">${post.excerpt || ''}</p>
                         <div class="flex items-center gap-4 text-sm text-gray-500">
                             <span>${formattedVotes} votes</span>
                             <span>${formattedComments} comments</span>
@@ -358,31 +356,30 @@
             return name.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2);
         }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.innerText = text;
-            return div.innerHTML;
-        }
-
+        // Auth listener
         onAuthStateChanged(auth, async (user) => {
             state.currentUser = user;
-            if (user && state.profileUserId) {
-                state.isOwnProfile = (user.uid === state.profileUserId);
-                const myDocSnap = await getDocs(query(collection(db, 'users'), where('email', '==', user.email)));
-                if (!myDocSnap.empty) {
-                    const myData = myDocSnap.docs[0].data();
-                    state.isFollowing = (myData.following || []).includes(state.profileUserId);
+            if (user) {
+                const myUserSnap = await getDocs(query(collection(db, 'users'), where('email', '==', user.email)));
+                let myUsername = '';
+                if (!myUserSnap.empty) myUsername = myUserSnap.docs[0].data().username;
+                state.isOwnProfile = (myUsername === usernameParam);
+                // Check if already following
+                if (!state.isOwnProfile && state.profileUserId) {
+                    const myDoc = await getDocs(query(collection(db, 'users'), where('email', '==', user.email)));
+                    if (!myDoc.empty) {
+                        const myData = myDoc.docs[0].data();
+                        state.isFollowing = (myData.following || []).includes(state.profileUserId);
+                    }
                 }
             } else {
                 state.isOwnProfile = false;
                 state.isFollowing = false;
             }
-            if (state.profileUser) renderProfileHeader();
-            if (!state.profileUser) fetchProfileUser();
+            fetchProfileUser();
         });
 
-        fetchProfileUser();
+        applyTheme();
         lucide.createIcons();
     </script>
 </body>
