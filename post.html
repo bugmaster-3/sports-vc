@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post | GameFlow Central</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF5A1F',
+                        primaryHover: '#E04A15',
+                        navy: { DEFAULT: '#0B0F19', card: '#1A1F2B', hover: '#242B3B' },
+                        accent: '#3B82F6',
+                        lightbg: '#F9FAFB',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Bebas Neue', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-header { @apply bg-white/80 dark:bg-navy/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800; }
+            .bg-mesh-dark { background-image: radial-gradient(at 0% 0%, rgba(11,15,25,1) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(26,31,43,0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(11,15,25,1) 0, transparent 50%); }
+            .vote-active-up { @apply text-primary bg-primary/10 dark:bg-primary/20; }
+            .vote-active-down { @apply text-accent bg-accent/10 dark:bg-accent/20; }
+            .prose img { max-width: 100%; border-radius: 0.75rem; margin: 1rem 0; }
+        }
+    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="bg-lightbg dark:bg-navy text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-300 min-h-screen flex flex-col">
+    <div class="fixed inset-0 z-[-1] opacity-50 dark:opacity-100 bg-mesh-dark pointer-events-none"></div>
+
+    <header class="sticky top-0 z-50 glass-header transition-colors duration-300">
+        <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+            <button onclick="history.back()" class="p-1.5 -ml-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors" aria-label="Go back">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </button>
+            <div class="flex items-center gap-2">
+                <a href="index.html" class="text-sm text-gray-500 hover:text-primary">Home</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-3xl w-full mx-auto px-4 py-8">
+        <div id="postContent" class="mb-8">
+            <div class="animate-pulse space-y-4">
+                <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                </div>
+                <div class="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div class="space-y-2">
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="commentFormContainer" class="hidden mt-8 border-t border-gray-200 dark:border-gray-800 pt-6">
+            <h3 class="font-bold text-lg mb-4">Leave a comment</h3>
+            <div class="flex gap-3">
+                <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden shrink-0">
+                    <img id="commentAvatar" src="https://ui-avatars.com/api/?name=You&background=random" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 space-y-2">
+                    <textarea id="commentInput" rows="3" placeholder="What do you think?" class="w-full bg-gray-50 dark:bg-navy border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none"></textarea>
+                    <div class="flex justify-end">
+                        <button id="submitComment" class="bg-primary text-white text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-primaryHover transition-colors">Comment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white dark:bg-navy-card border-t border-gray-200 dark:border-gray-800 py-4 mt-auto">
+        <div class="max-w-5xl mx-auto px-4 text-center text-xs text-gray-500 dark:text-gray-400 flex flex-col sm:flex-row justify-between gap-2">
+            <span>&copy; 2026 GameFlow Central. All rights reserved.</span>
+            <a href="privacy.html" class="hover:text-primary">Privacy</a>
+        </div>
+    </footer>
+
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script type="module">
+        import { db, auth } from './firebase-config.js';
+        import { doc, onSnapshot, runTransaction, addDoc, collection, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const postId = urlParams.get('p');
+        if (!postId) window.location.href = 'index.html';
+
+        const state = {
+            post: null,
+            currentUser: null,
+            currentUserProfile: null,
+            userVote: 0,
+            theme: localStorage.getItem('gf_theme') || 'dark'
+        };
+
+        if (state.theme === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform translate-y-10 opacity-0 transition-all duration-300 pointer-events-auto';
+            toast.innerHTML = `<i data-lucide="info" class="w-4 h-4 text-primary"></i><span class="text-sm font-medium">${msg}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons({ root: toast });
+            requestAnimationFrame(() => toast.classList.remove('translate-y-10', 'opacity-0'));
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => { if (container.contains(toast)) container.removeChild(toast); }, 300);
+            }, 3000);
+        }
+
+        function render() {
+            renderPost();
+            updateCommentForm();
+        }
+
+        function renderPost() {
+            const container = document.getElementById('postContent');
+            if (!state.post) return;
+
+            const post = state.post;
+            const totalVotes = (post.upvotes || 0) - (post.downvotes || 0);
+            const formattedVotes = totalVotes > 999 ? (totalVotes/1000).toFixed(1) + 'k' : totalVotes;
+            const formattedComments = post.commentCount > 999 ? (post.commentCount/1000).toFixed(1) + 'k' : post.commentCount;
+            const timeAgo = getTimeAgo(post.createdAt?.toDate ? post.createdAt.toDate() : new Date(post.createdAt));
+
+            const userVote = state.userVote || 0;
+            const contentHTML = post.description ? marked.parse(post.description) : '';
+
+            container.innerHTML = `
+                <article>
+                    <h1 class="text-3xl font-bold mb-2">${post.title}</h1>
+                    <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                        <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-bold">${post.authorInitials || '?'}</div>
+                        <a href="profile.html?u=${post.authorUsername || ''}" class="font-medium hover:underline text-gray-700 dark:text-gray-300">${post.authorName}</a>
+                        <span>·</span>
+                        <time>${timeAgo}</time>
+                    </div>
+
+                    ${post.image ? `<img src="${post.image}" alt="${post.title}" class="w-full rounded-xl mb-6 object-cover max-h-96">` : ''}
+
+                    <div class="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">${contentHTML}</div>
+
+                    <div class="flex items-center gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
+                        <div class="flex items-center gap-1">
+                            <button id="upvoteBtn" class="vote-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${userVote === 1 ? 'vote-active-up' : 'text-gray-400'}" data-type="up" aria-label="Upvote">
+                                <i data-lucide="arrow-up" class="w-5 h-5"></i>
+                            </button>
+                            <span class="font-bold text-sm ${userVote === 1 ? 'text-primary' : (userVote === -1 ? 'text-accent' : 'text-gray-700 dark:text-gray-300')}">${formattedVotes}</span>
+                            <button id="downvoteBtn" class="vote-btn p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${userVote === -1 ? 'vote-active-down' : 'text-gray-400'}" data-type="down" aria-label="Downvote">
+                                <i data-lucide="arrow-down" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <a href="comments.html?p=${postId}" class="flex items-center gap-1.5 text-gray-500 hover:text-primary transition-colors text-sm font-medium">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i> ${formattedComments} Comments
+                        </a>
+                    </div>
+                </article>
+            `;
+
+            document.getElementById('upvoteBtn').addEventListener('click', () => handleVote('up'));
+            document.getElementById('downvoteBtn').addEventListener('click', () => handleVote('down'));
+            lucide.createIcons({ root: container });
+        }
+
+        async function handleVote(type) {
+            if (!state.currentUser) { window.location.href = 'auth.html'; return; }
+            const userId = state.currentUser.uid;
+            const postRef = doc(db, 'posts', postId);
+            const voteRef = doc(db, 'posts', postId, 'votes', userId);
+            const val = type === 'up' ? 1 : -1;
+            const currentVote = state.userVote || 0;
+            const newVote = (val === currentVote) ? 0 : val;
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const postSnap = await transaction.get(postRef);
+                    if (!postSnap.exists()) return;
+                    const postData = postSnap.data();
+                    let up = postData.upvotes || 0;
+                    let down = postData.downvotes || 0;
+
+                    const voteSnap = await transaction.get(voteRef);
+                    const oldVal = voteSnap.exists() ? voteSnap.data().value : 0;
+
+                    if (oldVal === 1) up--;
+                    else if (oldVal === -1) down--;
+
+                    if (newVote === 0) {
+                        transaction.delete(voteRef);
+                    } else {
+                        if (newVote === 1) up++;
+                        else if (newVote === -1) down++;
+                        transaction.set(voteRef, { value: newVote, userId, postId });
+                    }
+
+                    transaction.update(postRef, { upvotes: up, downvotes: down });
+                });
+
+                state.userVote = newVote;
+                renderPost();
+            } catch (e) {
+                showToast('Vote failed.');
+            }
+        }
+
+        function updateCommentForm() {
+            const formContainer = document.getElementById('commentFormContainer');
+            const commentAvatar = document.getElementById('commentAvatar');
+            if (state.currentUser) {
+                formContainer.classList.remove('hidden');
+                const photoURL = state.currentUserProfile?.profilePicture || state.currentUser.photoURL;
+                const displayName = state.currentUserProfile?.displayName || state.currentUser.displayName || 'You';
+                commentAvatar.src = photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
+            } else {
+                formContainer.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('submitComment').addEventListener('click', async () => {
+            const input = document.getElementById('commentInput');
+            const content = input.value.trim();
+            if (!content || !state.currentUser) return;
+
+            const authorName = state.currentUserProfile?.displayName || state.currentUser.displayName || 'User';
+            const authorUsername = state.currentUserProfile?.username || state.currentUser.email?.split('@')[0] || 'user';
+            const authorProfilePicture = state.currentUserProfile?.profilePicture || state.currentUser.photoURL || '';
+
+            try {
+                await addDoc(collection(db, 'posts', postId, 'comments'), {
+                    content,
+                    authorId: state.currentUser.uid,
+                    authorName,
+                    authorUsername,
+                    authorProfilePicture,
+                    likes: 0,
+                    createdAt: serverTimestamp()
+                });
+                input.value = '';
+                showToast('Comment posted!');
+            } catch (e) {
+                showToast('Failed to post comment.');
+            }
+        });
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            let interval = Math.floor(seconds / 31536000);
+            if (interval > 1) return interval + 'y ago';
+            interval = Math.floor(seconds / 2592000);
+            if (interval > 1) return interval + 'mo ago';
+            interval = Math.floor(seconds / 86400);
+            if (interval > 1) return interval + 'd ago';
+            interval = Math.floor(seconds / 3600);
+            if (interval > 1) return interval + 'h ago';
+            interval = Math.floor(seconds / 60);
+            if (interval > 1) return interval + 'm ago';
+            return 'just now';
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            state.currentUser = user;
+            if (user) {
+                const userDocRef = doc(db, 'users', user.uid);
+                onSnapshot(userDocRef, (snap) => {
+                    if (snap.exists()) state.currentUserProfile = snap.data();
+                    updateCommentForm();
+                });
+                const voteRef = doc(db, 'posts', postId, 'votes', user.uid);
+                onSnapshot(voteRef, (snap) => {
+                    state.userVote = snap.exists() ? snap.data().value : 0;
+                    renderPost();
+                });
+            } else {
+                state.userVote = 0;
+                state.currentUserProfile = null;
+                updateCommentForm();
+                renderPost();
+            }
+        });
+
+        const postRef = doc(db, 'posts', postId);
+        onSnapshot(postRef, (snap) => {
+            if (snap.exists()) {
+                state.post = { id: snap.id, ...snap.data() };
+                renderPost();
+            } else {
+                document.getElementById('postContent').innerHTML = '<p class="text-center text-gray-500">Post not found.</p>';
+            }
+        });
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
