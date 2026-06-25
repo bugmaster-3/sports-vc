@@ -99,7 +99,7 @@
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { doc, onSnapshot, runTransaction, addDoc, collection, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { doc, onSnapshot, runTransaction, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -145,15 +145,21 @@
             const formattedVotes = totalVotes > 999 ? (totalVotes/1000).toFixed(1) + 'k' : totalVotes;
             const formattedComments = post.commentCount > 999 ? (post.commentCount/1000).toFixed(1) + 'k' : post.commentCount;
             const timeAgo = getTimeAgo(post.createdAt?.toDate ? post.createdAt.toDate() : new Date(post.createdAt));
-
             const userVote = state.userVote || 0;
             const contentHTML = post.description ? marked.parse(post.description) : '';
+
+            const authorAvatar = post.authorProfilePicture 
+                ? `<img src="${post.authorProfilePicture}" alt="${post.authorName}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`
+                + `<span class="text-[10px] font-bold text-gray-700 dark:text-gray-300 hidden">${getInitials(post.authorName)}</span>`
+                : `<span class="text-[10px] font-bold text-gray-700 dark:text-gray-300">${getInitials(post.authorName)}</span>`;
 
             container.innerHTML = `
                 <article>
                     <h1 class="text-3xl font-bold mb-2">${post.title}</h1>
                     <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                        <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-bold">${post.authorInitials || '?'}</div>
+                        <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+                            ${authorAvatar}
+                        </div>
                         <a href="profile.html?u=${post.authorUsername || ''}" class="font-medium hover:underline text-gray-700 dark:text-gray-300">${post.authorName}</a>
                         <span>·</span>
                         <time>${timeAgo}</time>
@@ -268,17 +274,22 @@
         function getTimeAgo(date) {
             const now = new Date();
             const seconds = Math.floor((now - date) / 1000);
-            let interval = Math.floor(seconds / 31536000);
-            if (interval > 1) return interval + 'y ago';
-            interval = Math.floor(seconds / 2592000);
-            if (interval > 1) return interval + 'mo ago';
-            interval = Math.floor(seconds / 86400);
-            if (interval > 1) return interval + 'd ago';
-            interval = Math.floor(seconds / 3600);
-            if (interval > 1) return interval + 'h ago';
-            interval = Math.floor(seconds / 60);
-            if (interval > 1) return interval + 'm ago';
-            return 'just now';
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return minutes + 'm ago';
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return hours + 'h ago';
+            const days = Math.floor(hours / 24);
+            if (days < 30) return days + 'd ago';
+            const months = Math.floor(days / 30);
+            if (months < 12) return months + 'mo ago';
+            const years = Math.floor(days / 365);
+            return years + 'y ago';
+        }
+
+        function getInitials(name) {
+            if (!name) return '?';
+            return name.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2);
         }
 
         onAuthStateChanged(auth, async (user) => {
