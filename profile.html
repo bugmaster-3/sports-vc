@@ -207,9 +207,7 @@
                     renderProfileHeader();
                     setMetaTags(state.profileUser);
                 }
-            }, (error) => {
-                console.error('User listener error:', error);
-            });
+            }, () => {});
 
             const postsQuery = query(collection(db, 'posts'), where('authorId', '==', state.profileUserId));
             onSnapshot(postsQuery, (snap) => {
@@ -232,9 +230,8 @@
                 state.posts = posts;
                 state.postsLoaded = true;
                 renderPosts();
-            }, (error) => {
-                console.error('Posts listener error:', error);
-                showToast('Could not load posts. Please try again.');
+            }, () => {
+                showToast('Could not load posts.');
                 state.postsLoaded = true;
                 renderPosts();
             });
@@ -350,8 +347,15 @@
 
         async function handleFollow() {
             if (!state.currentUser) { window.location.href = 'auth.html'; return; }
-            const myUid = state.currentUser.uid;
+            if (!state.currentUserProfile || !state.currentUserProfile.username) {
+                showToast('Your profile is still loading. Please wait.');
+                return;
+            }
+
+            const myUsername = state.currentUserProfile.username;
             const targetUid = state.profileUserId;
+            const myUid = state.currentUser.uid;
+
             if (myUid === targetUid) return;
 
             const myRef = doc(db, 'users', myUid);
@@ -367,11 +371,23 @@
                     const targetFollowers = targetSnap.data().followers || [];
 
                     if (myFollowing.includes(targetUid)) {
-                        transaction.update(myRef, { following: arrayRemove(targetUid), followingCount: increment(-1) });
-                        transaction.update(targetRef, { followers: arrayRemove(myUid), followersCount: increment(-1) });
+                        transaction.update(myRef, {
+                            following: arrayRemove(targetUid),
+                            followingCount: increment(-1)
+                        });
+                        transaction.update(targetRef, {
+                            followers: arrayRemove(myUsername),
+                            followersCount: increment(-1)
+                        });
                     } else {
-                        transaction.update(myRef, { following: arrayUnion(targetUid), followingCount: increment(1) });
-                        transaction.update(targetRef, { followers: arrayUnion(myUid), followersCount: increment(1) });
+                        transaction.update(myRef, {
+                            following: arrayUnion(targetUid),
+                            followingCount: increment(1)
+                        });
+                        transaction.update(targetRef, {
+                            followers: arrayUnion(myUsername),
+                            followersCount: increment(1)
+                        });
                     }
                 });
             } catch (e) {
@@ -415,10 +431,7 @@
                     } else {
                         fetchProfileUser();
                     }
-                }, (error) => {
-                    console.error('Current user listener error:', error);
-                    fetchProfileUser();
-                });
+                }, () => { fetchProfileUser(); });
             } else {
                 state.isOwnProfile = false;
                 state.isFollowing = false;
