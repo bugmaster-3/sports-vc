@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings – GameFlow Central</title>
+    <meta name="description" content="Manage your GameFlow Central account settings.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF5A1F',
+                        primaryHover: '#E04A15',
+                        navy: { DEFAULT: '#0B0F19', card: '#1A1F2B', hover: '#242B3B' },
+                        accent: '#3B82F6',
+                        lightbg: '#F9FAFB',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Bebas Neue', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-header { @apply bg-white/80 dark:bg-navy/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800; }
+            .bg-mesh-dark { background-image: radial-gradient(at 0% 0%, rgba(11,15,25,1) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(26,31,43,0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(11,15,25,1) 0, transparent 50%); }
+        }
+    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-lightbg dark:bg-navy text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-300 min-h-screen flex flex-col">
+    <div class="fixed inset-0 z-[-1] opacity-50 dark:opacity-100 bg-mesh-dark pointer-events-none"></div>
+
+    <header class="sticky top-0 z-50 glass-header transition-colors duration-300">
+        <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+            <a href="profile.html?u=myusername" class="p-1.5 -ml-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors" aria-label="Go back">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </a>
+            <h1 class="font-semibold text-sm">Settings</h1>
+            <div class="w-8"></div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-xl w-full mx-auto px-4 py-6 space-y-8">
+        <section>
+            <h2 class="font-bold text-lg mb-4">Profile Picture</h2>
+            <div class="flex items-center gap-4">
+                <div class="w-20 h-20 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 shrink-0">
+                    <img id="profilePicPreview" src="https://ui-avatars.com/api/?name=User&background=random" class="w-full h-full object-cover" alt="Profile">
+                </div>
+                <label class="bg-primary text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-primaryHover transition-colors cursor-pointer">
+                    Upload Photo
+                    <input type="file" id="profilePicInput" accept="image/*" class="hidden">
+                </label>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <h2 class="font-bold text-lg mb-1">Account Details</h2>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Display Name</label>
+                <input type="text" id="displayNameInput" class="w-full bg-gray-50 dark:bg-navy border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
+                <div class="relative">
+                    <input type="text" id="usernameInput" class="w-full bg-gray-50 dark:bg-navy border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none pr-10">
+                    <span id="usernameStatus" class="absolute right-3 top-1/2 -translate-y-1/2 text-sm"></span>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bio</label>
+                <textarea id="bioInput" rows="3" class="w-full bg-gray-50 dark:bg-navy border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none resize-none"></textarea>
+            </div>
+            <button id="saveProfileBtn" class="bg-primary text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-primaryHover transition-colors">Save Changes</button>
+        </section>
+
+        <section class="space-y-4">
+            <h2 class="font-bold text-lg">Appearance</h2>
+            <div class="flex items-center justify-between">
+                <span class="text-sm">Dark Mode</span>
+                <button id="themeToggle" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-navy bg-gray-200 dark:bg-primary" role="switch" aria-checked="true">
+                    <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1 dark:translate-x-6"></span>
+                </button>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <h2 class="font-bold text-lg">Security</h2>
+            <button id="resetPasswordBtn" class="w-full text-left bg-gray-50 dark:bg-navy hover:bg-gray-100 dark:hover:bg-navy-card border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 text-sm transition-colors">Reset Password</button>
+            <button id="logoutBtn" class="w-full text-left bg-gray-50 dark:bg-navy hover:bg-gray-100 dark:hover:bg-navy-card border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 text-sm transition-colors text-red-500">Log Out</button>
+        </section>
+
+        <section class="space-y-4">
+            <h2 class="font-bold text-lg">More</h2>
+            <a href="privacy.html" class="block bg-gray-50 dark:bg-navy hover:bg-gray-100 dark:hover:bg-navy-card border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 text-sm transition-colors">Privacy Policy</a>
+            <a href="terms.html" class="block bg-gray-50 dark:bg-navy hover:bg-gray-100 dark:hover:bg-navy-card border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 text-sm transition-colors">Terms of Service</a>
+        </section>
+    </main>
+
+    <footer class="bg-white dark:bg-navy-card border-t border-gray-200 dark:border-gray-800 py-10 mt-8">
+        <div class="max-w-5xl mx-auto px-4 text-center">
+            <div class="flex justify-center gap-4 mb-4">
+                <a href="https://twitter.com/gameflowcentral" target="_blank" rel="noopener" aria-label="Twitter" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-[#1DA1F2] hover:text-white transition-colors"><i class="bi bi-twitter-x text-sm"></i></a>
+                <a href="https://youtube.com/@gameflowcentral" target="_blank" rel="noopener" aria-label="YouTube" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-[#FF0000] hover:text-white transition-colors"><i class="bi bi-youtube text-sm"></i></a>
+                <a href="https://instagram.com/gameflowcentral" target="_blank" rel="noopener" aria-label="Instagram" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-[#E1306C] hover:text-white transition-colors"><i class="bi bi-instagram text-sm"></i></a>
+                <a href="https://twitch.tv/gameflowcentral" target="_blank" rel="noopener" aria-label="Twitch" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-[#9146FF] hover:text-white transition-colors"><i class="bi bi-twitch text-sm"></i></a>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">&copy; 2026 GameFlow Central. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script type="module">
+        import { db, auth } from './firebase-config.js';
+        import { doc, getDoc, setDoc, updateDoc, query, collection, where, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { onAuthStateChanged, signOut, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+        const state = {
+            currentUser: null,
+            userData: null,
+            originalUsername: '',
+            theme: localStorage.getItem('gf_theme') || 'dark'
+        };
+
+        function applyTheme() {
+            const html = document.documentElement;
+            const toggle = document.getElementById('themeToggle');
+            if (state.theme === 'dark') {
+                html.classList.add('dark');
+                toggle?.classList.add('dark:bg-primary');
+                toggle?.setAttribute('aria-checked', 'true');
+            } else {
+                html.classList.remove('dark');
+                toggle?.setAttribute('aria-checked', 'false');
+            }
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            state.theme = state.theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('gf_theme', state.theme);
+            applyTheme();
+        });
+
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform translate-y-10 opacity-0 transition-all duration-300 pointer-events-auto';
+            toast.innerHTML = `<i data-lucide="info" class="w-4 h-4 text-primary"></i><span class="text-sm font-medium">${msg}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons({ root: toast });
+            requestAnimationFrame(() => toast.classList.remove('translate-y-10', 'opacity-0'));
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => { if (container.contains(toast)) container.removeChild(toast); }, 300);
+            }, 3000);
+        }
+
+        async function loadUserData() {
+            if (!state.currentUser) return;
+            const userRef = doc(db, 'users', state.currentUser.uid);
+            const snap = await getDoc(userRef);
+            if (snap.exists()) {
+                state.userData = snap.data();
+                state.originalUsername = state.userData.username;
+                document.getElementById('displayNameInput').value = state.userData.displayName || '';
+                document.getElementById('usernameInput').value = state.userData.username || '';
+                document.getElementById('bioInput').value = state.userData.bio || '';
+                const pic = state.userData.profilePicture || state.currentUser.photoURL;
+                document.getElementById('profilePicPreview').src = pic || `https://ui-avatars.com/api/?name=${encodeURIComponent(state.userData.displayName || 'User')}&background=random`;
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'auth.html';
+                return;
+            }
+            state.currentUser = user;
+            loadUserData();
+            applyTheme();
+        });
+
+        // Username availability check
+        let usernameCheckTimeout;
+        document.getElementById('usernameInput').addEventListener('input', function() {
+            clearTimeout(usernameCheckTimeout);
+            const val = this.value.trim().toLowerCase();
+            const statusEl = document.getElementById('usernameStatus');
+            if (val === state.originalUsername) {
+                statusEl.innerHTML = '';
+                return;
+            }
+            if (!val || val.length < 3 || !/^[a-z0-9_]+$/.test(val)) {
+                statusEl.innerHTML = '<i data-lucide="x" class="w-4 h-4 text-red-500"></i>';
+                lucide.createIcons({ root: statusEl });
+                return;
+            }
+            statusEl.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-gray-400"></i>';
+            lucide.createIcons({ root: statusEl });
+            usernameCheckTimeout = setTimeout(async () => {
+                const q = query(collection(db, 'users'), where('username', '==', val));
+                const snap = await getDocs(q);
+                if (snap.empty) {
+                    statusEl.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-green-500"></i>';
+                } else {
+                    statusEl.innerHTML = '<i data-lucide="x" class="w-4 h-4 text-red-500"></i>';
+                }
+                lucide.createIcons({ root: statusEl });
+            }, 500);
+        });
+
+        // Profile image upload & base64 conversion
+        document.getElementById('profilePicInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const base64 = ev.target.result;
+                document.getElementById('profilePicPreview').src = base64;
+                const userRef = doc(db, 'users', state.currentUser.uid);
+                updateDoc(userRef, { profilePicture: base64 }).then(() => showToast('Profile picture updated!'));
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Save profile changes
+        document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+            if (!state.currentUser) return;
+            const newDisplayName = document.getElementById('displayNameInput').value.trim();
+            const newUsername = document.getElementById('usernameInput').value.trim().toLowerCase();
+            const newBio = document.getElementById('bioInput').value.trim();
+
+            if (!newDisplayName) { showToast('Display name cannot be empty.'); return; }
+            if (!newUsername || newUsername.length < 3 || !/^[a-z0-9_]+$/.test(newUsername)) { showToast('Invalid username.'); return; }
+
+            if (newUsername !== state.originalUsername) {
+                const q = query(collection(db, 'users'), where('username', '==', newUsername));
+                const snap = await getDocs(q);
+                if (!snap.empty) { showToast('Username is taken.'); return; }
+            }
+
+            const userRef = doc(db, 'users', state.currentUser.uid);
+            try {
+                await updateDoc(userRef, {
+                    displayName: newDisplayName,
+                    username: newUsername,
+                    bio: newBio
+                });
+                state.originalUsername = newUsername;
+                showToast('Profile saved.');
+            } catch (e) {
+                showToast('Failed to update profile.');
+            }
+        });
+
+        document.getElementById('resetPasswordBtn').addEventListener('click', async () => {
+            if (!state.currentUser) return;
+            try {
+                await sendPasswordResetEmail(auth, state.currentUser.email);
+                showToast('Password reset email sent.');
+            } catch (e) {
+                showToast('Failed to send reset email.');
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'index.html';
+        });
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
