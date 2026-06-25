@@ -88,7 +88,7 @@
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { collection, doc, onSnapshot, addDoc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { collection, doc, onSnapshot, addDoc, deleteDoc, runTransaction, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -97,7 +97,6 @@
 
         const state = {
             currentUser: null,
-            currentUserProfile: null,
             post: null,
             comments: [],
             commentLikes: {},
@@ -149,13 +148,11 @@
                 profileBtn.classList.remove('hidden');
                 document.getElementById('profilePic').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=0B0F19&color=fff`;
                 commentForm.classList.remove('hidden');
-                const displayName = state.currentUserProfile?.displayName || user.displayName || 'You';
-                commentAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random`;
+                commentAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'You')}&background=random`;
             } else {
                 signInLink.classList.remove('hidden');
                 profileBtn.classList.add('hidden');
                 commentForm.classList.add('hidden');
-                state.currentUserProfile = null;
             }
         }
 
@@ -169,22 +166,10 @@
             else window.location.href = 'auth.html';
         });
 
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             updateAuthUI(user);
-            if (user) {
-                // Listen to Firestore profile for real display name
-                const userDocRef = doc(db, 'users', user.uid);
-                onSnapshot(userDocRef, (snap) => {
-                    if (snap.exists()) {
-                        state.currentUserProfile = snap.data();
-                        updateAuthUI(user); // refresh avatar/name
-                    }
-                });
-                listenToCommentLikes(user.uid);
-            } else {
-                state.commentLikes = {};
-                state.currentUserProfile = null;
-            }
+            if (user) listenToCommentLikes(user.uid);
+            else state.commentLikes = {};
         });
 
         function listenToCommentLikes(uid) {
@@ -192,9 +177,9 @@
             const commentsRef = collection(db, 'posts', postId, 'comments');
             onSnapshot(commentsRef, (snap) => {
                 const newLikes = {};
-                snap.docs.forEach(docSnap => {
+                snap.forEach(docSnap => {
                     const likesSub = docSnap.ref.collection('likes');
-                    onSnapshot(likesSub, (likesSnap) => {
+                    likesSub.onSnapshot(likesSnap => {
                         newLikes[docSnap.id] = likesSnap.docs.some(d => d.id === uid);
                         state.commentLikes = { ...state.commentLikes, ...newLikes };
                         renderComments();
@@ -231,11 +216,10 @@
             if (!postId) return;
             const commentsRef = collection(db, 'posts', postId, 'comments');
             onSnapshot(commentsRef, (snap) => {
-                // Merge changes instead of replacing entire array
-                snap.docChanges().forEach(change => {
-                    const doc = change.doc;
+                const freshComments = [];
+                snap.forEach(doc => {
                     const data = doc.data();
-                    const comment = {
+                    freshComments.push({
                         id: doc.id,
                         content: data.content,
                         authorId: data.authorId,
@@ -243,18 +227,10 @@
                         authorUsername: data.authorUsername,
                         likes: data.likes || 0,
                         createdAt: data.createdAt ? data.createdAt.toDate() : new Date()
-                    };
-
-                    if (change.type === 'added') {
-                        state.comments.unshift(comment);
-                    } else if (change.type === 'modified') {
-                        const index = state.comments.findIndex(c => c.id === comment.id);
-                        if (index > -1) state.comments[index] = comment;
-                    } else if (change.type === 'removed') {
-                        state.comments = state.comments.filter(c => c.id !== comment.id);
-                    }
+                    });
                 });
-                state.comments.sort((a, b) => b.createdAt - a.createdAt);
+                freshComments.sort((a, b) => b.createdAt - a.createdAt);
+                state.comments = freshComments;
                 renderComments();
             });
         }
@@ -299,7 +275,7 @@
             const uid = state.currentUser.uid;
             const currentlyLiked = state.commentLikes[commentId] || false;
 
-            // Optimistic UI
+            // Optimistic UI update
             state.commentLikes[commentId] = !currentlyLiked;
             const comment = state.comments.find(c => c.id === commentId);
             if (comment) comment.likes += currentlyLiked ? -1 : 1;
@@ -321,6 +297,7 @@
                     transaction.update(commentRef, { likes: currentLikes + 1 });
                 }
             }).catch(() => {
+                // Revert on failure
                 state.commentLikes[commentId] = currentlyLiked;
                 if (comment) comment.likes += currentlyLiked ? 1 : -1;
                 renderComments();
@@ -333,18 +310,13 @@
             const content = input.value.trim();
             if (!content || !state.currentUser) return;
 
-            // Use Firestore profile display name, fallback to auth displayName, then "User"
-            const authorName = state.currentUserProfile?.displayName
-                || state.currentUser.displayName
-                || 'User';
-
             const tempId = 'temp-' + Date.now();
             const newComment = {
                 id: tempId,
                 content,
                 authorId: state.currentUser.uid,
-                authorName,
-                authorUsername: state.currentUserProfile?.username || state.currentUser.email?.split('@')[0] || 'user',
+                authorName: state.currentUser.displayName || 'User',
+                authorUsername: state.currentUser.email ? state.currentUser.email.split('@')[0] : 'user',
                 likes: 0,
                 createdAt: new Date()
             };
@@ -356,14 +328,12 @@
                 const docRef = await addDoc(collection(db, 'posts', postId, 'comments'), {
                     content,
                     authorId: state.currentUser.uid,
-                    authorName,
-                    authorUsername: newComment.authorUsername,
+                    authorName: state.currentUser.displayName || 'User',
+                    authorUsername: state.currentUser.email ? state.currentUser.email.split('@')[0] : 'user',
                     likes: 0,
                     createdAt: serverTimestamp()
                 });
-                // Replace temp id with real one
-                const idx = state.comments.findIndex(c => c.id === tempId);
-                if (idx > -1) state.comments[idx].id = docRef.id;
+                state.comments = state.comments.map(c => c.id === tempId ? { ...c, id: docRef.id } : c);
                 renderComments();
             } catch (e) {
                 state.comments = state.comments.filter(c => c.id !== tempId);
