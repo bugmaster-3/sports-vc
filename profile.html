@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | GameFlow Central</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF5A1F',
+                        primaryHover: '#E04A15',
+                        navy: { DEFAULT: '#0B0F19', card: '#1A1F2B', hover: '#242B3B' },
+                        accent: '#3B82F6',
+                        lightbg: '#F9FAFB',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Bebas Neue', 'sans-serif'],
+                    },
+                    animation: { 'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .bg-mesh-dark {
+                background-image: radial-gradient(at 0% 0%, rgba(11,15,25,1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(26,31,43,0.5) 0, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(11,15,25,1) 0, transparent 50%);
+            }
+        }
+    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-lightbg dark:bg-navy text-gray-900 dark:text-gray-100 font-sans antialiased transition-colors duration-300 min-h-screen flex flex-col">
+    <div class="fixed inset-0 z-[-1] opacity-50 dark:opacity-100 bg-mesh-dark pointer-events-none"></div>
+
+    <header class="sticky top-0 z-50 bg-white/80 dark:bg-navy/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+            <button onclick="history.back()" class="p-1.5 -ml-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors" aria-label="Go back">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </button>
+            <div class="relative">
+                <button id="moreBtn" class="p-1.5 -mr-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors" aria-label="More options">
+                    <i data-lucide="ellipsis-vertical" class="w-5 h-5"></i>
+                </button>
+                <div id="moreMenu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-navy-card border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl py-2 opacity-0 pointer-events-none scale-95 transition-all origin-top-right z-50">
+                    <a id="reportLink" href="#" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Report User</a>
+                    <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Settings</a>
+                    <a href="privacy.html" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-2xl w-full mx-auto px-4 py-6">
+        <div id="profileContent" class="mb-8">
+            <div class="animate-pulse space-y-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="flex-1 space-y-2">
+                        <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+                    </div>
+                </div>
+                <div class="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </div>
+        </div>
+
+        <div id="postsContainer">
+            <h2 class="font-bold text-lg mb-4 px-1">Posts</h2>
+            <div id="postsList" class="space-y-4"></div>
+        </div>
+    </main>
+
+    <footer class="bg-white dark:bg-navy-card border-t border-gray-200 dark:border-gray-800 py-4 mt-auto">
+        <div class="max-w-5xl mx-auto px-4 text-center text-xs text-gray-500 dark:text-gray-400 flex flex-col sm:flex-row justify-between gap-2">
+            <span>&copy; 2026 GameFlow Central. All rights reserved.</span>
+            <a href="privacy.html" class="hover:text-primary">Privacy</a>
+        </div>
+    </footer>
+
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script type="module">
+        import { db, auth } from './firebase-config.js';
+        import { doc, collection, query, where, onSnapshot, getDocs, runTransaction, increment, arrayUnion, arrayRemove, orderBy } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const usernameParam = urlParams.get('u');
+        if (!usernameParam) window.location.href = 'index.html';
+
+        const state = {
+            currentUser: null,
+            profileUser: null,
+            profileUserId: null,
+            isOwnProfile: false,
+            isFollowing: false,
+            posts: [],
+            postsLoaded: false,
+            theme: localStorage.getItem('gf_theme') || 'dark'
+        };
+
+        function applyTheme() {
+            const html = document.documentElement;
+            if (state.theme === 'dark') html.classList.add('dark');
+            else html.classList.remove('dark');
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform translate-y-10 opacity-0 transition-all duration-300 pointer-events-auto';
+            toast.innerHTML = `<i data-lucide="info" class="w-4 h-4 text-primary"></i><span class="text-sm font-medium">${msg}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons({ root: toast });
+            requestAnimationFrame(() => toast.classList.remove('translate-y-10', 'opacity-0'));
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => { if (container.contains(toast)) container.removeChild(toast); }, 300);
+            }, 3000);
+        }
+
+        // More menu toggle
+        document.getElementById('moreBtn').addEventListener('click', () => {
+            const menu = document.getElementById('moreMenu');
+            menu.classList.toggle('opacity-0'); menu.classList.toggle('pointer-events-none');
+            menu.classList.toggle('scale-95'); menu.classList.toggle('opacity-100'); menu.classList.toggle('scale-100');
+        });
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#moreBtn') && !e.target.closest('#moreMenu')) {
+                const menu = document.getElementById('moreMenu');
+                menu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                menu.classList.remove('opacity-100', 'scale-100');
+            }
+        });
+
+        // Fetch user by username
+        async function fetchProfileUser() {
+            const q = query(collection(db, 'users'), where('username', '==', usernameParam));
+            const snap = await getDocs(q);
+            if (snap.empty) {
+                document.getElementById('profileContent').innerHTML = '<p class="text-center text-gray-500">User not found.</p>';
+                return;
+            }
+            const userDoc = snap.docs[0];
+            state.profileUserId = userDoc.id;
+            state.profileUser = userDoc.data();
+            setupRealtimeListeners();
+        }
+
+        function setupRealtimeListeners() {
+            // Listen to user doc for up-to-date follow counts etc.
+            const userRef = doc(db, 'users', state.profileUserId);
+            onSnapshot(userRef, (snap) => {
+                if (snap.exists()) {
+                    state.profileUser = snap.data();
+                    renderProfileHeader();
+                }
+            });
+
+            // Listen to posts by this user
+            const postsQuery = query(collection(db, 'posts'), where('authorId', '==', state.profileUserId), orderBy('createdAt', 'desc'));
+            onSnapshot(postsQuery, (snap) => {
+                const posts = [];
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    posts.push({
+                        id: doc.id,
+                        title: data.title,
+                        excerpt: data.excerpt,
+                        category: data.category,
+                        color: data.color || 'bg-gray-500',
+                        createdAt: data.createdAt ? data.createdAt.toDate() : new Date(),
+                        upvotes: data.upvotes || 0,
+                        downvotes: data.downvotes || 0,
+                        commentCount: data.commentCount || 0,
+                    });
+                });
+                state.posts = posts;
+                state.postsLoaded = true;
+                renderPosts();
+            });
+        }
+
+        function renderProfileHeader() {
+            const container = document.getElementById('profileContent');
+            const user = state.profileUser;
+            const isOwn = state.isOwnProfile;
+            const isFollowing = state.isFollowing;
+
+            container.innerHTML = `
+                <div class="flex flex-col items-center sm:flex-row sm:items-start gap-4">
+                    <div class="w-20 h-20 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 shrink-0">
+                        ${user.profilePicture ? 
+                            `<img src="${user.profilePicture}" alt="${user.displayName}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` +
+                            `<div class="w-full h-full flex items-center justify-center text-xl font-bold text-gray-700 dark:text-gray-300" style="display:none;">${getInitials(user.displayName)}</div>`
+                            : `<div class="w-full h-full flex items-center justify-center text-xl font-bold text-gray-700 dark:text-gray-300">${getInitials(user.displayName)}</div>`
+                        }
+                    </div>
+                    <div class="flex-1 text-center sm:text-left">
+                        <h1 class="text-xl font-bold">${user.displayName}</h1>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">@${user.username}</p>
+                        <p class="text-sm mt-2">${user.bio || ''}</p>
+                        <div class="flex gap-4 mt-3 text-sm">
+                            <span><strong>${user.followersCount || 0}</strong> followers</span>
+                            <span><strong>${user.followingCount || 0}</strong> following</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-4 justify-center sm:justify-start">
+                    ${isOwn ? 
+                        `<a href="settings.html" class="bg-primary text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-primaryHover transition-colors">Edit Profile</a>`
+                        :
+                        `<button id="followBtn" class="px-4 py-2 rounded-full text-sm font-semibold transition-colors ${isFollowing ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-primary hover:text-white'}">${isFollowing ? 'Following' : 'Follow'}</button>`
+                    }
+                    <button id="shareProfileBtn" class="px-4 py-2 rounded-full text-sm font-semibold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">Share Profile</button>
+                </div>
+            `;
+
+            // Update report link
+            document.getElementById('reportLink').href = `report.html?u=${user.username}`;
+
+            // Bind events
+            if (!isOwn) {
+                document.getElementById('followBtn').addEventListener('click', handleFollow);
+            }
+            document.getElementById('shareProfileBtn').addEventListener('click', () => {
+                const url = `${window.location.origin}/profile.html?u=${user.username}`;
+                navigator.clipboard.writeText(url).then(() => showToast('Profile link copied!'));
+            });
+        }
+
+        function renderPosts() {
+            const list = document.getElementById('postsList');
+            if (!state.postsLoaded) {
+                // Show skeleton
+                list.innerHTML = '';
+                for (let i = 0; i < 3; i++) {
+                    list.innerHTML += `
+                        <div class="bg-white dark:bg-navy-card rounded-xl p-4 border border-gray-200 dark:border-gray-800 animate-pulse">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+                                <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3 ml-auto"></div>
+                            </div>
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
+                            <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            list.innerHTML = '';
+            if (state.posts.length === 0) {
+                const message = state.isOwnProfile ? 
+                    "You haven't made any posts yet!" : 
+                    "User has no posts yet!";
+                const link = state.isOwnProfile ? 
+                    '<a href="makepost.html" class="text-primary hover:underline font-semibold">Make your first post</a>' : 
+                    '';
+                list.innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-gray-500 dark:text-gray-400 mb-2">${message}</p>
+                        ${link}
+                    </div>
+                `;
+                return;
+            }
+
+            state.posts.forEach(post => {
+                const totalVotes = (post.upvotes || 0) - (post.downvotes || 0);
+                const formattedVotes = totalVotes > 999 ? (totalVotes/1000).toFixed(1) + 'k' : totalVotes;
+                const formattedComments = post.commentCount > 999 ? (post.commentCount/1000).toFixed(1) + 'k' : post.commentCount;
+                const timeAgo = getTimeAgo(post.createdAt);
+
+                const div = document.createElement('div');
+                div.className = 'bg-white dark:bg-navy-card rounded-xl p-4 border border-gray-200 dark:border-gray-800 hover:shadow-sm transition-shadow';
+                div.innerHTML = `
+                    <a href="post.html?p=${post.id}" class="block">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-xs font-semibold text-primary">${post.category}</span>
+                            <span class="text-xs text-gray-500">${timeAgo}</span>
+                        </div>
+                        <h3 class="font-semibold mb-1">${post.title}</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">${post.excerpt || ''}</p>
+                        <div class="flex items-center gap-4 text-sm text-gray-500">
+                            <span>${formattedVotes} votes</span>
+                            <span>${formattedComments} comments</span>
+                        </div>
+                    </a>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        async function handleFollow() {
+            if (!state.currentUser) { window.location.href = 'auth.html'; return; }
+            const myUid = state.currentUser.uid;
+            const targetUid = state.profileUserId;
+            if (myUid === targetUid) return;
+
+            const myRef = doc(db, 'users', myUid);
+            const targetRef = doc(db, 'users', targetUid);
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const mySnap = await transaction.get(myRef);
+                    const targetSnap = await transaction.get(targetRef);
+                    if (!mySnap.exists() || !targetSnap.exists()) return;
+
+                    const myFollowing = mySnap.data().following || [];
+                    const targetFollowers = targetSnap.data().followers || [];
+
+                    if (myFollowing.includes(targetUid)) {
+                        transaction.update(myRef, { following: arrayRemove(targetUid), followingCount: increment(-1) });
+                        transaction.update(targetRef, { followers: arrayRemove(myUid), followersCount: increment(-1) });
+                    } else {
+                        transaction.update(myRef, { following: arrayUnion(targetUid), followingCount: increment(1) });
+                        transaction.update(targetRef, { followers: arrayUnion(myUid), followersCount: increment(1) });
+                    }
+                });
+            } catch (e) {
+                showToast('Follow action failed.');
+            }
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            let interval = Math.floor(seconds / 31536000);
+            if (interval > 1) return interval + 'y ago';
+            interval = Math.floor(seconds / 2592000);
+            if (interval > 1) return interval + 'mo ago';
+            interval = Math.floor(seconds / 86400);
+            if (interval > 1) return interval + 'd ago';
+            interval = Math.floor(seconds / 3600);
+            if (interval > 1) return interval + 'h ago';
+            interval = Math.floor(seconds / 60);
+            if (interval > 1) return interval + 'm ago';
+            return 'just now';
+        }
+
+        function getInitials(name) {
+            if (!name) return '?';
+            return name.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        // Auth listener
+        onAuthStateChanged(auth, async (user) => {
+            state.currentUser = user;
+            if (user) {
+                const myUserSnap = await getDocs(query(collection(db, 'users'), where('email', '==', user.email)));
+                let myUsername = '';
+                if (!myUserSnap.empty) myUsername = myUserSnap.docs[0].data().username;
+                state.isOwnProfile = (myUsername === usernameParam);
+                // Check if already following
+                if (!state.isOwnProfile && state.profileUserId) {
+                    const myDoc = await getDocs(query(collection(db, 'users'), where('email', '==', user.email)));
+                    if (!myDoc.empty) {
+                        const myData = myDoc.docs[0].data();
+                        state.isFollowing = (myData.following || []).includes(state.profileUserId);
+                    }
+                }
+            } else {
+                state.isOwnProfile = false;
+                state.isFollowing = false;
+            }
+            fetchProfileUser();
+        });
+
+        applyTheme();
+        lucide.createIcons();
+    </script>
+</body>
+</html>
