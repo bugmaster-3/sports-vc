@@ -38,6 +38,13 @@
                 radial-gradient(at 100% 0%, rgba(26,31,43,0.5) 0, transparent 50%),
                 radial-gradient(at 100% 100%, rgba(11,15,25,1) 0, transparent 50%);
             }
+            .hashtag {
+                color: #3B82F6;
+                cursor: pointer;
+            }
+            .hashtag:hover {
+                text-decoration: underline;
+            }
         }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -94,7 +101,7 @@
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { doc, collection, query, where, onSnapshot, getDocs, runTransaction, increment, arrayUnion, arrayRemove, orderBy } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { doc, collection, query, where, onSnapshot, getDocs, runTransaction, increment, arrayUnion, arrayRemove, orderBy, onSnapshot as onFirestoreSnapshot } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -158,6 +165,11 @@
                 document.head.appendChild(ogImage);
             }
             ogImage.setAttribute('content', user.profilePicture || '');
+        }
+
+        function linkifyHashtags(text) {
+            if (!text) return '';
+            return text.replace(/#(\w+)/g, '<a href="search.html?q=%23$1" class="hashtag">#$1</a>');
         }
 
         document.getElementById('moreBtn').addEventListener('click', () => {
@@ -244,7 +256,7 @@
                         </div>
                     </div>
                 </div>
-                <p class="text-sm mt-3">${user.bio || ''}</p>
+                <p class="text-sm mt-3">${linkifyHashtags(user.bio) || ''}</p>
                 <div class="flex gap-3 mt-4">
                     ${isOwn ? 
                         `<a href="settings.html" class="bg-primary text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-primaryHover transition-colors">Edit Profile</a>`
@@ -289,7 +301,7 @@
             if (state.posts.length === 0) {
                 const message = state.isOwnProfile ? 
                     "You haven't made any posts yet!" : 
-                    "This user has no posts yet.";
+                    "User has no posts yet!";
                 const link = state.isOwnProfile ? 
                     '<a href="new.html" class="text-primary hover:underline font-semibold">Create your first post</a>' : 
                     '';
@@ -380,11 +392,11 @@
             return name.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2);
         }
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             state.currentUser = user;
             if (user) {
                 const userDocRef = doc(db, 'users', user.uid);
-                onSnapshot(userDocRef, (snap) => {
+                onFirestoreSnapshot(userDocRef, (snap) => {
                     if (snap.exists()) {
                         state.currentUserProfile = snap.data();
                         state.isOwnProfile = (state.currentUserProfile.username === usernameParam);
