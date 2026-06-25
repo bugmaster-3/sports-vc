@@ -101,7 +101,7 @@
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { doc, collection, query, where, onSnapshot, getDocs, runTransaction, increment, arrayUnion, arrayRemove, orderBy, onSnapshot as onFirestoreSnapshot } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { doc, collection, query, where, onSnapshot, getDocs, runTransaction, increment, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -207,9 +207,11 @@
                     renderProfileHeader();
                     setMetaTags(state.profileUser);
                 }
+            }, (error) => {
+                console.error('User listener error:', error);
             });
 
-            const postsQuery = query(collection(db, 'posts'), where('authorId', '==', state.profileUserId), orderBy('createdAt', 'desc'));
+            const postsQuery = query(collection(db, 'posts'), where('authorId', '==', state.profileUserId));
             onSnapshot(postsQuery, (snap) => {
                 const posts = [];
                 snap.forEach(doc => {
@@ -226,7 +228,13 @@
                         commentCount: data.commentCount || 0,
                     });
                 });
+                posts.sort((a, b) => b.createdAt - a.createdAt);
                 state.posts = posts;
+                state.postsLoaded = true;
+                renderPosts();
+            }, (error) => {
+                console.error('Posts listener error:', error);
+                showToast('Could not load posts. Please try again.');
                 state.postsLoaded = true;
                 renderPosts();
             });
@@ -396,7 +404,7 @@
             state.currentUser = user;
             if (user) {
                 const userDocRef = doc(db, 'users', user.uid);
-                onFirestoreSnapshot(userDocRef, (snap) => {
+                onSnapshot(userDocRef, (snap) => {
                     if (snap.exists()) {
                         state.currentUserProfile = snap.data();
                         state.isOwnProfile = (state.currentUserProfile.username === usernameParam);
@@ -407,6 +415,9 @@
                     } else {
                         fetchProfileUser();
                     }
+                }, (error) => {
+                    console.error('Current user listener error:', error);
+                    fetchProfileUser();
                 });
             } else {
                 state.isOwnProfile = false;
