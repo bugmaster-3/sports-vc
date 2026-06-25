@@ -122,7 +122,7 @@
     <script type="module">
         import { db, auth } from './firebase-config.js';
         import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-        import { doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
         const theme = localStorage.getItem('gf_theme') || 'dark';
         const html = document.documentElement;
@@ -191,28 +191,34 @@
         signInTab.addEventListener('click', () => toggleMode(false));
         signUpTab.addEventListener('click', () => toggleMode(true));
 
+        async function createUserDocument(user, displayName = null, username = null, photoURL = null) {
+            const userDocRef = doc(db, 'users', user.uid);
+            const existingDoc = await getDoc(userDocRef);
+            if (!existingDoc.exists()) {
+                const name = displayName || user.displayName || user.email.split('@')[0];
+                const uname = username || user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '');
+                const picture = photoURL || user.photoURL || '';
+                await setDoc(userDocRef, {
+                    username: uname,
+                    displayName: name,
+                    profilePicture: picture,
+                    bio: '',
+                    followers: [],
+                    following: [],
+                    followersCount: 0,
+                    followingCount: 0,
+                    posts: [],
+                    createdAt: new Date()
+                });
+            }
+        }
+
         document.getElementById('googleSignIn').addEventListener('click', async () => {
             const provider = new GoogleAuthProvider();
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
-                const userRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userRef);
-                if (!userDoc.exists()) {
-                    await setDoc(userRef, {
-                        username: user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, ''),
-                        displayName: user.displayName || user.email.split('@')[0],
-                        email: user.email,
-                        profilePicture: user.photoURL || '',
-                        bio: '',
-                        posts: [],
-                        followers: [],
-                        following: [],
-                        followersCount: 0,
-                        followingCount: 0,
-                        createdAt: serverTimestamp()
-                    });
-                }
+                await createUserDocument(user, user.displayName, null, user.photoURL);
                 window.location.href = 'index.html';
             } catch (error) {
                 if (error.code !== 'auth/popup-closed-by-user') showToast('Google sign-in failed.');
@@ -241,19 +247,7 @@
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     const user = userCredential.user;
                     await updateProfile(user, { displayName: fullName });
-                    await setDoc(doc(db, 'users', user.uid), {
-                        username: username,
-                        displayName: fullName,
-                        email: email,
-                        profilePicture: '',
-                        bio: '',
-                        posts: [],
-                        followers: [],
-                        following: [],
-                        followersCount: 0,
-                        followingCount: 0,
-                        createdAt: serverTimestamp()
-                    });
+                    await createUserDocument(user, fullName, username, '');
                     window.location.href = 'index.html';
                 } catch (error) {
                     if (error.code === 'auth/email-already-in-use') showError('This email is already registered.');
@@ -262,7 +256,12 @@
                 }
             } else {
                 try {
-                    await signInWithEmailAndPassword(auth, email, password);
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (!userDoc.exists()) {
+                        await createUserDocument(user, user.displayName || email.split('@')[0], email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, ''), '');
+                    }
                     window.location.href = 'index.html';
                 } catch (error) {
                     if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') showError('Invalid email or password.');
