@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile | GameFlow Central</title>
+    <meta name="description" content="View profile on GameFlow Central.">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -131,7 +132,33 @@
             }, 3000);
         }
 
-        // More menu toggle
+        function setMetaTags(user) {
+            document.title = `${user.displayName} (@${user.username}) - GameFlow Central`;
+            const desc = user.bio || `View ${user.displayName}'s profile on GameFlow Central.`;
+            document.querySelector('meta[name="description"]').setAttribute('content', desc);
+            let ogTitle = document.querySelector('meta[property="og:title"]');
+            if (!ogTitle) {
+                ogTitle = document.createElement('meta');
+                ogTitle.setAttribute('property', 'og:title');
+                document.head.appendChild(ogTitle);
+            }
+            ogTitle.setAttribute('content', `${user.displayName} (@${user.username})`);
+            let ogDesc = document.querySelector('meta[property="og:description"]');
+            if (!ogDesc) {
+                ogDesc = document.createElement('meta');
+                ogDesc.setAttribute('property', 'og:description');
+                document.head.appendChild(ogDesc);
+            }
+            ogDesc.setAttribute('content', desc);
+            let ogImage = document.querySelector('meta[property="og:image"]');
+            if (!ogImage) {
+                ogImage = document.createElement('meta');
+                ogImage.setAttribute('property', 'og:image');
+                document.head.appendChild(ogImage);
+            }
+            ogImage.setAttribute('content', user.profilePicture || '');
+        }
+
         document.getElementById('moreBtn').addEventListener('click', () => {
             const menu = document.getElementById('moreMenu');
             menu.classList.toggle('opacity-0'); menu.classList.toggle('pointer-events-none');
@@ -145,7 +172,6 @@
             }
         });
 
-        // Fetch user by username
         async function fetchProfileUser() {
             const q = query(collection(db, 'users'), where('username', '==', usernameParam));
             const snap = await getDocs(q);
@@ -156,20 +182,20 @@
             const userDoc = snap.docs[0];
             state.profileUserId = userDoc.id;
             state.profileUser = userDoc.data();
+            setMetaTags(state.profileUser);
             setupRealtimeListeners();
         }
 
         function setupRealtimeListeners() {
-            // Listen to user doc for up-to-date follow counts etc.
             const userRef = doc(db, 'users', state.profileUserId);
             onSnapshot(userRef, (snap) => {
                 if (snap.exists()) {
                     state.profileUser = snap.data();
                     renderProfileHeader();
+                    setMetaTags(state.profileUser);
                 }
             });
 
-            // Listen to posts by this user
             const postsQuery = query(collection(db, 'posts'), where('authorId', '==', state.profileUserId), orderBy('createdAt', 'desc'));
             onSnapshot(postsQuery, (snap) => {
                 const posts = [];
@@ -200,7 +226,7 @@
             const isFollowing = state.isFollowing;
 
             container.innerHTML = `
-                <div class="flex flex-col items-center sm:flex-row sm:items-start gap-4">
+                <div class="flex items-center gap-5">
                     <div class="w-20 h-20 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 shrink-0">
                         ${user.profilePicture ? 
                             `<img src="${user.profilePicture}" alt="${user.displayName}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` +
@@ -208,17 +234,17 @@
                             : `<div class="w-full h-full flex items-center justify-center text-xl font-bold text-gray-700 dark:text-gray-300">${getInitials(user.displayName)}</div>`
                         }
                     </div>
-                    <div class="flex-1 text-center sm:text-left">
+                    <div class="flex-1">
                         <h1 class="text-xl font-bold">${user.displayName}</h1>
                         <p class="text-sm text-gray-500 dark:text-gray-400">@${user.username}</p>
-                        <p class="text-sm mt-2">${user.bio || ''}</p>
-                        <div class="flex gap-4 mt-3 text-sm">
+                        <div class="flex gap-4 mt-1 text-sm">
                             <span><strong>${user.followersCount || 0}</strong> followers</span>
                             <span><strong>${user.followingCount || 0}</strong> following</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 mt-4 justify-center sm:justify-start">
+                <p class="text-sm mt-3">${user.bio || ''}</p>
+                <div class="flex gap-3 mt-4">
                     ${isOwn ? 
                         `<a href="settings.html" class="bg-primary text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-primaryHover transition-colors">Edit Profile</a>`
                         :
@@ -228,10 +254,8 @@
                 </div>
             `;
 
-            // Update report link
             document.getElementById('reportLink').href = `report.html?u=${user.username}`;
 
-            // Bind events
             if (!isOwn) {
                 document.getElementById('followBtn').addEventListener('click', handleFollow);
             }
@@ -244,7 +268,6 @@
         function renderPosts() {
             const list = document.getElementById('postsList');
             if (!state.postsLoaded) {
-                // Show skeleton
                 list.innerHTML = '';
                 for (let i = 0; i < 3; i++) {
                     list.innerHTML += `
@@ -356,7 +379,6 @@
             return name.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2);
         }
 
-        // Auth listener
         onAuthStateChanged(auth, async (user) => {
             state.currentUser = user;
             if (user) {
@@ -364,7 +386,6 @@
                 let myUsername = '';
                 if (!myUserSnap.empty) myUsername = myUserSnap.docs[0].data().username;
                 state.isOwnProfile = (myUsername === usernameParam);
-                // Check if already following
                 if (!state.isOwnProfile && state.profileUserId) {
                     const myDoc = await getDocs(query(collection(db, 'users'), where('email', '==', user.email)));
                     if (!myDoc.empty) {
