@@ -88,7 +88,7 @@
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { collection, doc, onSnapshot, addDoc, runTransaction, serverTimestamp, getDoc, query, where, onSnapshot as onFirestoreSnapshot } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { collection, doc, onSnapshot, addDoc, runTransaction, serverTimestamp, getDoc, increment } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -183,7 +183,7 @@
             updateAuthUI(user);
             if (user) {
                 const userDocRef = doc(db, 'users', user.uid);
-                onFirestoreSnapshot(userDocRef, (snap) => {
+                onSnapshot(userDocRef, (snap) => {
                     if (snap.exists()) {
                         state.currentUserProfile = snap.data();
                         updateAuthUI(user);
@@ -423,6 +423,17 @@
                     likes: 0,
                     createdAt: serverTimestamp()
                 });
+
+                // Increment the post's commentCount
+                const postRef = doc(db, 'posts', postId);
+                await runTransaction(db, async (transaction) => {
+                    const postSnap = await transaction.get(postRef);
+                    if (postSnap.exists()) {
+                        const currentCount = postSnap.data().commentCount || 0;
+                        transaction.update(postRef, { commentCount: currentCount + 1 });
+                    }
+                });
+
                 state.comments = state.comments.map(c => c.id === tempId ? { ...c, id: docRef.id } : c);
                 renderComments();
             } catch (e) {
@@ -435,17 +446,17 @@
         function getTimeAgo(date) {
             const now = new Date();
             const seconds = Math.floor((now - date) / 1000);
-            let interval = Math.floor(seconds / 31536000);
-            if (interval > 1) return interval + 'y ago';
-            interval = Math.floor(seconds / 2592000);
-            if (interval > 1) return interval + 'mo ago';
-            interval = Math.floor(seconds / 86400);
-            if (interval > 1) return interval + 'd ago';
-            interval = Math.floor(seconds / 3600);
-            if (interval > 1) return interval + 'h ago';
-            interval = Math.floor(seconds / 60);
-            if (interval > 1) return interval + 'm ago';
-            return 'just now';
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return minutes + 'm ago';
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return hours + 'h ago';
+            const days = Math.floor(hours / 24);
+            if (days < 30) return days + 'd ago';
+            const months = Math.floor(days / 30);
+            if (months < 12) return months + 'mo ago';
+            const years = Math.floor(days / 365);
+            return years + 'y ago';
         }
 
         function getInitials(name) {
