@@ -140,19 +140,11 @@
             }, 3000);
         }
 
-        function render() {
-            renderPost();
-            updateCommentForm();
-        }
-
-        // Preprocess markdown: convert !!video(url) to video tag, preserve standard images
         function preprocessMarkdown(md) {
             if (!md) return '';
-            // Replace !![video](url) with HTML5 video element
-            let processed = md.replace(/!!\[video\]\((.*?)\)/g, (match, url) => {
+            return md.replace(/!!\[video\]\((.*?)\)/g, (match, url) => {
                 return `<video src="${url}" controls class="w-full rounded-xl my-4"></video>`;
             });
-            return processed;
         }
 
         function renderPost() {
@@ -170,9 +162,10 @@
             const preprocessed = preprocessMarkdown(rawMarkdown);
             const contentHTML = marked.parse(preprocessed);
 
-            const authorAvatar = post.authorProfilePicture 
-                ? `<img src="${post.authorProfilePicture}" alt="${post.authorName}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`
-                + `<span class="text-[10px] font-bold text-gray-700 dark:text-gray-300 hidden">${getInitials(post.authorName)}</span>`
+            const hasAuthorPic = post.authorProfilePicture && post.authorProfilePicture.trim() !== '';
+            const avatarHTML = hasAuthorPic
+                ? `<img src="${post.authorProfilePicture}" alt="${post.authorName}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                   <span class="text-[10px] font-bold text-gray-700 dark:text-gray-300 hidden">${getInitials(post.authorName)}</span>`
                 : `<span class="text-[10px] font-bold text-gray-700 dark:text-gray-300">${getInitials(post.authorName)}</span>`;
 
             container.innerHTML = `
@@ -180,7 +173,7 @@
                     <h1 class="text-3xl font-bold mb-2">${post.title}</h1>
                     <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
                         <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
-                            ${authorAvatar}
+                            ${avatarHTML}
                         </div>
                         <a href="profile.html?u=${post.authorUsername || ''}" class="font-medium hover:underline text-gray-700 dark:text-gray-300">${post.authorName}</a>
                         <span>·</span>
