@@ -35,7 +35,16 @@
             .bg-mesh-dark { background-image: radial-gradient(at 0% 0%, rgba(11,15,25,1) 0, transparent 50%), radial-gradient(at 100% 0%, rgba(26,31,43,0.5) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(11,15,25,1) 0, transparent 50%); }
             .vote-active-up { @apply text-primary bg-primary/10 dark:bg-primary/20; }
             .vote-active-down { @apply text-accent bg-accent/10 dark:bg-accent/20; }
-            .prose img { max-width: 100%; border-radius: 0.75rem; margin: 1rem 0; }
+            .content h1 { @apply text-3xl font-bold mb-4 mt-6; }
+            .content h2 { @apply text-2xl font-semibold mb-3 mt-5; }
+            .content h3 { @apply text-xl font-semibold mb-2 mt-4; }
+            .content p { @apply mb-3 leading-relaxed; }
+            .content ul, .content ol { @apply mb-3 pl-6; }
+            .content li { @apply mb-1; }
+            .content blockquote { @apply border-l-4 border-primary pl-4 italic my-4 text-gray-600 dark:text-gray-400; }
+            .content code { @apply bg-gray-100 dark:bg-gray-800 rounded px-1 py-0.5 text-sm font-mono; }
+            .content pre { @apply bg-gray-100 dark:bg-gray-800 rounded-lg p-4 mb-4 overflow-x-auto; }
+            .content a { @apply text-accent underline; }
         }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -136,6 +145,16 @@
             updateCommentForm();
         }
 
+        // Preprocess markdown: convert !!video(url) to video tag, preserve standard images
+        function preprocessMarkdown(md) {
+            if (!md) return '';
+            // Replace !![video](url) with HTML5 video element
+            let processed = md.replace(/!!\[video\]\((.*?)\)/g, (match, url) => {
+                return `<video src="${url}" controls class="w-full rounded-xl my-4"></video>`;
+            });
+            return processed;
+        }
+
         function renderPost() {
             const container = document.getElementById('postContent');
             if (!state.post) return;
@@ -146,7 +165,10 @@
             const formattedComments = post.commentCount > 999 ? (post.commentCount/1000).toFixed(1) + 'k' : post.commentCount;
             const timeAgo = getTimeAgo(post.createdAt?.toDate ? post.createdAt.toDate() : new Date(post.createdAt));
             const userVote = state.userVote || 0;
-            const contentHTML = post.description ? marked.parse(post.description) : '';
+
+            const rawMarkdown = post.description || '';
+            const preprocessed = preprocessMarkdown(rawMarkdown);
+            const contentHTML = marked.parse(preprocessed);
 
             const authorAvatar = post.authorProfilePicture 
                 ? `<img src="${post.authorProfilePicture}" alt="${post.authorName}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`
@@ -167,7 +189,7 @@
 
                     ${post.image ? `<img src="${post.image}" alt="${post.title}" class="w-full rounded-xl mb-6 object-cover max-h-96">` : ''}
 
-                    <div class="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">${contentHTML}</div>
+                    <div class="content">${contentHTML}</div>
 
                     <div class="flex items-center gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
                         <div class="flex items-center gap-1">
