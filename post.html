@@ -108,7 +108,7 @@
 
     <script type="module">
         import { db, auth } from './firebase-config.js';
-        import { doc, onSnapshot, runTransaction, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        import { doc, onSnapshot, runTransaction, addDoc, collection, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -279,6 +279,17 @@
                     likes: 0,
                     createdAt: serverTimestamp()
                 });
+
+                // Increment the post's commentCount
+                const postRef = doc(db, 'posts', postId);
+                await runTransaction(db, async (transaction) => {
+                    const postSnap = await transaction.get(postRef);
+                    if (postSnap.exists()) {
+                        const currentCount = postSnap.data().commentCount || 0;
+                        transaction.update(postRef, { commentCount: currentCount + 1 });
+                    }
+                });
+
                 input.value = '';
                 showToast('Comment posted!');
             } catch (e) {
