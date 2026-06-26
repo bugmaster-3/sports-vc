@@ -38,13 +38,8 @@
                 radial-gradient(at 100% 0%, rgba(26,31,43,0.5) 0, transparent 50%),
                 radial-gradient(at 100% 100%, rgba(11,15,25,1) 0, transparent 50%);
             }
-            .hashtag {
-                color: #3B82F6;
-                cursor: pointer;
-            }
-            .hashtag:hover {
-                text-decoration: underline;
-            }
+            .hashtag { color: #3B82F6; cursor: pointer; }
+            .hashtag:hover { text-decoration: underline; }
         }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -220,7 +215,6 @@
                         excerpt: data.excerpt,
                         category: data.category,
                         color: data.color || 'bg-gray-500',
-                        image: data.image || '',
                         createdAt: data.createdAt ? data.createdAt.toDate() : new Date(),
                         upvotes: data.upvotes || 0,
                         downvotes: data.downvotes || 0,
@@ -229,10 +223,6 @@
                 });
                 posts.sort((a, b) => b.createdAt - a.createdAt);
                 state.posts = posts;
-                state.postsLoaded = true;
-                renderPosts();
-            }, () => {
-                showToast('Could not load posts.');
                 state.postsLoaded = true;
                 renderPosts();
             });
@@ -326,29 +316,19 @@
                 const formattedComments = post.commentCount > 999 ? (post.commentCount/1000).toFixed(1) + 'k' : post.commentCount;
                 const timeAgo = getTimeAgo(post.createdAt);
 
-                const imageHtml = post.image ? 
-                    `<div class="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-gray-200 dark:bg-gray-700">
-                        <img src="${post.image}" alt="" class="w-full h-full object-cover" onerror="this.remove()">
-                    </div>` : '';
-
                 const div = document.createElement('div');
                 div.className = 'bg-white dark:bg-navy-card rounded-xl p-4 border border-gray-200 dark:border-gray-800 hover:shadow-sm transition-shadow';
                 div.innerHTML = `
                     <a href="post.html?p=${post.id}" class="block">
-                        <div class="flex gap-3">
-                            ${imageHtml}
-                            <div class="flex-1 min-w-0">
-                                <div class="flex justify-between items-start mb-1">
-                                    <span class="text-xs font-semibold text-primary">${post.category}</span>
-                                    <span class="text-xs text-gray-500">${timeAgo}</span>
-                                </div>
-                                <h3 class="font-semibold mb-1 truncate">${post.title}</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">${post.excerpt || ''}</p>
-                                <div class="flex items-center gap-4 text-sm text-gray-500">
-                                    <span>${formattedVotes} votes</span>
-                                    <span>${formattedComments} comments</span>
-                                </div>
-                            </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-xs font-semibold text-primary">${post.category}</span>
+                            <span class="text-xs text-gray-500">${timeAgo}</span>
+                        </div>
+                        <h3 class="font-semibold mb-1">${post.title}</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">${post.excerpt || ''}</p>
+                        <div class="flex items-center gap-4 text-sm text-gray-500">
+                            <span>${formattedVotes} votes</span>
+                            <span>${formattedComments} comments</span>
                         </div>
                     </a>
                 `;
@@ -409,17 +389,17 @@
         function getTimeAgo(date) {
             const now = new Date();
             const seconds = Math.floor((now - date) / 1000);
-            let interval = Math.floor(seconds / 31536000);
-            if (interval > 1) return interval + 'y ago';
-            interval = Math.floor(seconds / 2592000);
-            if (interval > 1) return interval + 'mo ago';
-            interval = Math.floor(seconds / 86400);
-            if (interval > 1) return interval + 'd ago';
-            interval = Math.floor(seconds / 3600);
-            if (interval > 1) return interval + 'h ago';
-            interval = Math.floor(seconds / 60);
-            if (interval > 1) return interval + 'm ago';
-            return 'just now';
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return minutes + 'm ago';
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return hours + 'h ago';
+            const days = Math.floor(hours / 24);
+            if (days < 30) return days + 'd ago';
+            const months = Math.floor(days / 30);
+            if (months < 12) return months + 'mo ago';
+            const years = Math.floor(days / 365);
+            return years + 'y ago';
         }
 
         function getInitials(name) {
