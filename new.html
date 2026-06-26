@@ -113,17 +113,10 @@
         import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
         const categoryColors = {
-            'NBA': 'bg-orange-500',
-            'NFL': 'bg-blue-600',
-            'Soccer': 'bg-green-600',
-            'UFC': 'bg-red-600',
-            'Tennis': 'bg-yellow-500',
-            'Rugby': 'bg-green-700',
-            'Wrestling': 'bg-yellow-600',
-            'F1': 'bg-red-500',
-            'MLB': 'bg-blue-800',
-            'Boxing': 'bg-slate-800',
-            'Golf': 'bg-green-700'
+            'NBA': 'bg-orange-500', 'NFL': 'bg-blue-600', 'Soccer': 'bg-green-600',
+            'UFC': 'bg-red-600', 'Tennis': 'bg-yellow-500', 'Rugby': 'bg-green-700',
+            'Wrestling': 'bg-yellow-600', 'F1': 'bg-red-500', 'MLB': 'bg-blue-800',
+            'Boxing': 'bg-slate-800', 'Golf': 'bg-green-700'
         };
 
         const theme = localStorage.getItem('gf_theme') || 'dark';
@@ -227,6 +220,7 @@
                     authorName: currentUserProfile.displayName,
                     authorUsername: currentUserProfile.username,
                     authorInitials,
+                    authorProfilePicture: currentUserProfile.profilePicture || '',
                     createdAt: serverTimestamp(),
                     isBreaking,
                     tab: 'latest',
